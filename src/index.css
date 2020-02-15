@@ -1,0 +1,930 @@
+:root{
+  --mainDarkBlue:#0b245b;
+  --mainGreyWhite:#e1e0e0;
+  --mainOffWhite:#f9faf5;
+  --mainBurgundy:#9a073c;
+  --mainFontLight:'Montserrat', sans-serif;
+  --mainFontBold: 'Work Sans', sans-serif;
+}
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+/*Nav bar styles*/
+.App .nav{
+  background-color:#212121;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  font-family: var(--mainFontBold);
+}
+@media screen and (max-width: 670px){
+  .App .nav .material-icons{
+    display: none;
+  } 
+}
+
+
+/*Footer styles*/
+.App .page-footer{
+  background-color: #212121;
+}
+
+/*Sign in and Sign up Styles*/
+.outer-container * {
+	box-sizing: border-box;
+}
+.outer-container {
+	background: #f6f5f7;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+	font-family: var(--mainFontLight);
+	height: 100vh;
+	margin: -20px 0 50px;
+}
+.outer-container h1 {
+  font-size: 36px ;
+	margin: 0;
+}
+.outer-container h2 {
+	text-align: center;
+}
+.outer-container p {
+	font-size: 14px;
+	font-weight: 100;
+	line-height: 20px;
+	letter-spacing: 0.5px;
+	margin: 20px 0 30px;
+}
+.outer-container span {
+	font-size: 12px;
+}
+.outer-container a {
+	color: #333;
+	font-size: 14px;
+	text-decoration: none;
+	margin: 15px 0;
+}
+.outer-container button {
+	border-radius: 20px;
+	border: 1px solid #263238;
+	background-color: #212121;
+	color: #FFFFFF;
+	font-size: 12px;
+	font-weight: bold;
+	padding: 12px 45px;
+	letter-spacing: 1px;
+	text-transform: uppercase;
+  transition: transform 80ms ease-in;
+  cursor: pointer;
+}
+.outer-container button:active {
+  transform: scale(0.95);
+}
+.outer-container button:focus {
+	outline: none;
+}
+.outer-container button.ghost {
+	background-color: transparent;
+	border-color: #FFFFFF;
+}
+.outer-container form {
+	background-color: #FFFFFF;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-direction: column;
+	padding: 0 50px;
+	height: 100%;
+	text-align: center;
+}
+.outer-container input {
+	background-color: #eee;
+	border: none;
+	padding: 12px 15px;
+	margin: 8px 0;
+	width: 100%;
+}
+.container-starter {
+	background-color: #fff;
+	border-radius: 10px;
+  	box-shadow: 0 14px 28px rgba(0,0,0,0.25), 
+			0 10px 10px rgba(0,0,0,0.22);
+	position: relative;
+	overflow: hidden;
+	width: 768px;
+	max-width: 100%;
+	min-height: 480px;
+}
+.form-container {
+	position: absolute;
+	top: 0;
+	height: 100%;
+	transition: all 0.6s ease-in-out;
+}
+.sign-in-container {
+	left: 0;
+	width: 50%;
+	z-index: 2;
+}
+.container-starter.right-panel-active .sign-in-container {
+	transform: translateX(100%);
+}
+.sign-up-container {
+	left: 0;
+	width: 50%;
+	opacity: 0;
+	z-index: 1;
+}
+.container-starter.right-panel-active .sign-up-container {
+	transform: translateX(100%);
+	opacity: 1;
+	z-index: 5;
+	animation: show 0.6s;
+}
+@keyframes show {
+	0%, 49.99% {
+		opacity: 0;
+		z-index: 1;
+	}
+	
+	50%, 100% {
+		opacity: 1;
+		z-index: 5;
+	}
+}
+.overlay-container {
+	position: absolute;
+	top: 0;
+	left: 50%;
+	width: 50%;
+	height: 100%;
+	overflow: hidden;
+	transition: transform 0.6s ease-in-out;
+	z-index: 100;
+}
+.container-starter.right-panel-active .overlay-container{
+	transform: translateX(-100%);
+}
+.overlay {
+	background: var(--mainDarkBlue);
+	background: -webkit-linear-gradient(to right, var(--mainBurgundy), var(--mainDarkBlue));
+	background: linear-gradient(to right, var(--mainBurgundy), var(--mainDarkBlue));
+	background-repeat: no-repeat;
+	background-size: cover;
+	background-position: 0 0;
+	color: #FFFFFF;
+	position: relative;
+	left: -100%;
+	height: 100%;
+	width: 200%;
+  	transform: translateX(0);
+	transition: transform 0.6s ease-in-out;
+}
+.container-starter.right-panel-active .overlay {
+  	transform: translateX(50%);
+}
+.overlay-panel {
+	position: absolute;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-direction: column;
+	padding: 0 40px;
+	text-align: center;
+	top: 0;
+	height: 100%;
+	width: 50%;
+	transform: translateX(0);
+	transition: transform 0.6s ease-in-out;
+}
+.overlay-left {
+	transform: translateX(-20%);
+}
+.container-starter.right-panel-active .overlay-left {
+	transform: translateX(0);
+}
+.overlay-right {
+	right: 0;
+	transform: translateX(0);
+}
+.container-starter.right-panel-active .overlay-right {
+	transform: translateX(20%);
+}
+.social-container {
+	margin: 20px 0;
+}
+.social-container a {
+	border: 1px solid #DDDDDD;
+	border-radius: 50%;
+	display: inline-flex;
+	justify-content: center;
+	align-items: center;
+	margin: 0 5px;
+	height: 40px;
+	width: 40px;
+}
+
+/*Contact Page Styles*/
+.App .contact-us section {
+  padding: 60px 0;
+  min-height: 100vh;
+}
+.App .contact-us .contact-info {
+display: inline-block;
+width: 100%;
+text-align: center;
+margin-bottom: 10px;
+}
+.App .contact-us .contact-info-icon {
+margin-bottom: 15px;
+}
+.App .contact-us .contact-info-item {
+background: linear-gradient(to bottom left, #212121 40%, var(--mainDarkBlue) 100%);
+padding: 30px 0px;
+}
+.App .contact-us .contact-info-icon i {
+font-size: 48px;
+color: white;
+}
+.App .contact-us .contact-info-text p{margin-bottom:0px;}
+.App .contact-us .contact-info-text h2 {
+color: #fff;
+font-size: 22px;
+text-transform: capitalize;
+font-weight: 600;
+margin-bottom: 10px;
+}
+.App .contact-us .contact-info-text span {
+color: var(--mainGreyWhite);
+font-size: 16px;
+display: inline-block;
+width: 100%;
+}
+.App .contact-us .contact-page-map {
+margin-top: 36px;
+}
+.App .contact-us .contact-page-map iframe{
+  width:100%; 
+  height:450px; 
+}
+
+/*Vehicles Styles*/
+.App .vehicles h1{
+	font-family: var(--mainFontBold);
+	font-size: 32px;
+	text-align: center;
+}
+.App .vehicles p{
+	font-family: var(--mainFontLight);
+	letter-spacing: 1.5px;
+	line-height: 36px;
+}
+.App .vehicles nav{
+	background:#212121;
+	display: flex;
+	flex-direction: row;
+	justify-content: space-around;
+}
+#search-bar{
+	width: 500px;
+	background:#212121;
+}
+.App .vehicles .featured-vehicles{
+	padding-bottom: 50px;
+}
+.App .vehicles .featured-vehicles .carousel .carousel-item {
+	width:500px !important;
+}
+.App .vehicles .featured-vehicles .carousel{
+	margin-top: -90px;
+}
+.App .vehicles .input-field{
+	background-color:#212121 ;
+}
+
+/*Categories List*/
+.App .vehicles .category-list .cards-list {
+	z-index: 0;
+	width: 100%;
+	display: flex;
+	justify-content: space-around;
+	flex-wrap: wrap;
+}  
+.App .vehicles .category-list .cards-list .card {
+	margin: 30px auto;
+	width: 380px;
+	height: 180px;
+	border-radius: 40px;
+  	box-shadow: 5px 5px 30px 7px rgba(0,0,0,0.25), -5px -5px 30px 7px rgba(0,0,0,0.22);
+	cursor: pointer;
+	transition: 0.4s;
+} 
+.App .vehicles .category-list .card .card_image {
+	width: inherit;
+	height: inherit;
+	border-radius: 40px;
+}
+.App .vehicles .category-list .card .card_image img {
+	width: inherit;
+	height: inherit;
+	border-radius: 40px;
+	object-fit: cover;
+}
+.App .vehicles .category-list .card .card_title {
+	text-align: center;
+	border-radius: 0px 0px 40px 40px;
+	font-family: sans-serif;
+	font-weight: bold;
+	font-size: 30px;
+	margin-top: -80px;
+	height: 40px;
+}  
+.App .vehicles .category-list .card:hover {
+	transform: scale(0.9, 0.9);
+	box-shadow: 5px 5px 30px 15px rgba(0,0,0,0.25), 
+	  -5px -5px 30px 15px rgba(0,0,0,0.22);
+	border-radius: 40px;
+}
+.App .vehicles .category-list .title-white {
+	color: white;
+}
+.App .vehicles .category-list .title-black {
+	color: black;
+}
+@media all and (max-width: 500px) {
+	.App .vehicles .category-list .card-list {
+		/* On small screens, we are no longer using row direction but column */
+		flex-direction: column;
+	}
+}
+
+/*Vehicle List Styles*/
+.App .vehicles .vehicle-list .main{
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.App .vehicles .vehicle-list img {
+  height: auto;
+  max-width: 100%;
+  vertical-align: middle;
+}
+.App .vehicles .vehicle-list .btn {
+  color: #ffffff;
+  font-size: 14px;
+  text-transform: uppercase;
+  border-radius: 4px;
+  font-weight: 400;
+  display: block;
+  width: 100%;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: transparent;
+}
+.App .vehicles .vehicle-list .btn:hover {
+  background-color: rgba(255, 255, 255, 0.12);
+}
+.App .vehicles .vehicle-list .cards {
+  display: flex;
+  flex-wrap: wrap;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.App .vehicles .vehicle-list .cards_item {
+  display: flex;
+  padding: 1rem;
+}
+@media (min-width: 40rem) {
+	.App .vehicles .vehicle-list .cards_item {
+    width: 50%;
+  }
+}
+@media (min-width: 56rem) {
+	.App .vehicles .vehicle-list .cards_item {
+    width: 33.3333%;
+  }
+}
+.App .vehicles .vehicle-list .card {
+  background-color: white;
+  border-radius: 0.25rem;
+  box-shadow: 0 20px 40px -14px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.App .vehicles .vehicle-list .card_content {
+  padding: 1rem;
+  background: linear-gradient(to bottom left, #212121 40%, var(--mainDarkBlue) 100%);
+}
+.App .vehicles .vehicle-list .card_title {
+  color: #ffffff;
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: capitalize;
+  margin: 0px;
+  text-align: center;
+}
+.App .vehicles .vehicle-list .card_text {
+  color: #ffffff;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  margin-bottom: 1.25rem;    
+  font-weight: 400;
+}
+.App .vehicles .vehicle-list .card-details{
+	display: flex;
+	flex-direction: row;
+	justify-content: space-around;
+
+}
+
+/*Vehicle Details Page Styles*/
+.App .vehicle-details{
+	display: flex;
+	flex-direction: row;
+	justify-content: space-around;
+}
+.App .vehicle-details .card{
+	width: 720px;
+}
+.App .vehicle-details .card button, .App .booking-details .card button, #upload-btn, #edit-btn{
+	box-sizing: border-box;
+	appearance: none;
+	background-color: transparent;
+	border: 2px solid #212121;
+	border-radius: 0.6em;
+	color: #212121;
+	cursor: pointer;
+	display: flex;
+	align-self: center;
+	font-size: 1rem;
+	font-weight: 400;
+	line-height: 1;
+	margin: 10px;
+	padding: 0.6em 1.4em;
+	text-decoration: none;
+	text-align: center;
+	font-family: var(--mainFontLight);
+	font-weight: 700;
+	transition: box-shadow 300ms ease-in-out, color 300ms ease-in-out;
+}
+.App .vehicle-details .card button:hover, .App .booking-details .card button:hover, #upload-btn:hover, #edit-btn:hover{
+	box-shadow: 0 0 40px 40px #212121 inset;
+	color: white;
+}
+.App .vehicle-details .card .card-title{
+	font-family: var(--mainFontBold);
+	width: 100%;
+	background: rgba(0,0,0,0.55);
+}
+.App .vehicle-details .card .card-content .details{
+	display: flex;
+	flex-direction: row;
+	justify-content: space-around;
+}
+@media all and (max-width: 500px) {
+	.App .vehicle-details .card{
+		width: 500px;
+	}
+}
+
+/*Dashboard Styles*/
+.App .dashboard h1{
+	font-family: var(--mainFontBold);
+	font-size: 32px;
+}
+.App .dashboard p{
+	font-family: var(--mainFontLight);
+	letter-spacing: 1.5px;
+	line-height: 36px;
+}
+.App .dashboard .about-us{
+	padding: 5px 70px 20px 70px;
+	text-align: center;
+}
+.App .dashboard .about-us ul{
+	display: flex;
+	flex-direction: row;
+	justify-content: space-around;
+	font-weight: bold;
+	font-family: var(--mainFontBold);
+}
+.App .dashboard .about-us ul > li{
+	display: flex;
+	flex-direction: column;
+	width: min-content;
+}
+.App .dashboard .start-reservation{
+	padding: 5px 70px 20px 70px;
+	text-align: center;
+}
+.App .dashboard .start-reservation .search-form{
+	display: flex;
+	flex-direction: row;
+	justify-content: space-evenly;
+}
+.App .dashboard .start-reservation .search-form .datepicker{
+	width: fit-content;
+	font-family: var(--mainFontLight);
+}
+.App .dashboard .start-reservation .search-form .search-btn{
+	box-sizing: border-box;
+	appearance: none;
+	background-color: transparent;
+	border: 2px solid #212121;
+	border-radius: 0.6em;
+	color: #212121;
+	cursor: pointer;
+	display: flex;
+	align-self: center;
+	font-size: 1rem;
+	font-weight: 400;
+	line-height: 1;
+	margin: 10px;
+	padding: 0.6em 1.4em;
+	text-decoration: none;
+	text-align: center;
+	font-family: var(--mainFontLight);
+	font-weight: 700;
+	transition: box-shadow 300ms ease-in-out, color 300ms ease-in-out;
+}
+.App .dashboard .start-reservation .search-form .search-btn:hover{
+	box-shadow: 0 0 40px 40px #212121 inset;
+	color: white;
+}
+
+/*Booking Page Styles*/
+.App .booking-details *, .App .booking-details *:before, .App .booking-details *:after {
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	box-sizing: border-box;
+  }
+  .App .booking-details{
+	font-family: 'Nunito', sans-serif;
+	background:linear-gradient(to bottom left, #212121 40%, var(--mainDarkBlue) 100%);
+  }
+  .App .booking-details form {
+	max-width: 500px;
+	margin: 10px auto;
+	padding: 10px 20px;
+	background: #f4f7f8;
+	border-radius: 8px;
+  }
+  .App .booking-details h1 {
+	margin: 0 0 30px 0;
+	text-align: center;
+	font-size: 36px;
+  }
+  .App .booking-details input[type="text"],
+  .App .booking-details input[type="password"],
+  .App .booking-details input[type="date"],
+  .App .booking-details input[type="datetime"],
+  .App .booking-details input[type="email"],
+  .App .booking-details input[type="number"],
+  .App .booking-details input[type="search"],
+  .App .booking-details input[type="tel"],
+  .App .booking-details input[type="time"],
+  .App .booking-details input[type="url"],
+  .App .booking-details select {
+	background: rgba(255,255,255,.1);
+	border: none;
+	border-radius: 4px;
+	font-size: 16px;
+	height: 20px;
+	margin: 0;
+	outline: 0;
+	padding: 15px;
+	width: 100%;
+	background-color: #e8eeef;
+	color: #8a97a0;
+	-webkit-box-shadow: 0 1px 0 rgba(0,0,0,0.03) inset;
+			box-shadow: 0 1px 0 rgba(0,0,0,0.03) inset;
+	margin-bottom: 30px;
+	-webkit-transition: .4s;
+			transition: .4s;
+  }
+  .App .booking-details input[type="text"],
+  .App .booking-details input[type="password"],
+  .App .booking-details input[type="email"],
+  .App .booking-details input[type="date"],
+  .App .booking-details input[type="tel"] {
+	border-top: 2px solid #d2d9dd;
+  }
+  .App .booking-details input[type="text"]:focus,
+  .App .booking-details input[type="password"]:focus,
+  .App .booking-details input[type="email"]:focus,
+  .App .booking-details input[type="date"]:focus,
+  .App .booking-details input[type="tel"]:focus,
+  .App .booking-details input[type="search"]:focus {
+	background: #d2d9dd;
+	border-radius: 30px;
+	border-top: none;
+  }
+  .App .booking-details select {
+	padding: 6px;
+	height: 32px;
+	border-radius: 2px;
+  }
+  .App .booking-details .reserve-btn {
+	position: relative;
+	display: block;
+	padding: 19px 39px 18px 39px;
+	color: #FFF;
+	margin: 0 auto;
+	background: linear-gradient(to bottom left, #212121 40%, var(--mainDarkBlue) 100%);
+	font-size: 18px;
+	text-align: center;
+	font-style: normal;
+	width: 100%;
+	border: 1px solid var(--mainDarkBlue);
+	border-width: 1px 1px 3px;
+	margin-bottom: 10px;
+	transition: .4s;
+  }
+  .App .booking-details .reserve-btn:hover {
+	color: var(--mainDarkBlue);
+	width: 70%;
+	border-radius: 30px;
+	background: transparent;
+	border-width: 2px 2px 3px;
+	border-color: var(--mainDarkBlue);
+	cursor: pointer;
+  }
+  .App .booking-details .field-sets{
+	display:flex;
+	flex-direction: row;
+	justify-content: space-around;
+  }
+  .App .booking-details fieldset {
+	margin-left: 30px;
+	margin-bottom: 30px;
+	border: none;
+  }
+  .App .booking-details .field-sets .row-info{
+	  display: flex;
+	  flex-direction:row;
+	  justify-content: space-around;
+  }
+  .App .booking-details .field-sets .row-info .row{
+	  width: 100%;
+	  padding-right: 50px;
+  }
+  .App .booking-details legend {
+	font-size: 1.4em;
+	margin-bottom: 10px;
+  }
+  .App .booking-details label {
+	display: block;
+	margin-bottom: 8px;
+  }
+  .App .booking-details label.light {
+	font-weight: 300;
+	display: inline;
+  }
+  .App .booking-details .number {
+	background: linear-gradient(to bottom left, #212121 40%, var(--mainDarkBlue) 100%);
+	color: #fff;
+	height: 30px;
+	width: 30px;
+	display: inline-block;
+	font-size: 0.8em;
+	margin-right: 4px;
+	line-height: 30px;
+	text-align: center;
+	text-shadow: 0 1px 0 rgba(255,255,255,0.2);
+	border-radius: 8px 5px 8px 20px;
+  }
+  @media screen and (min-width: 480px) {form {max-width: 480px}}
+  @media screen and (min-width: 1024px) {
+	.App .booking-details form {max-width: 960px}
+	.App .booking-details fieldset {
+	  position: relative;
+	  float: left;
+	  width: 45%;
+	}
+	.App .booking-details fieldset .addresses {
+	  width: 54%;
+	  float: right;
+	}
+  }
+  @media screen and (max-width: 670px){
+	.App .booking-details .field-sets{
+	  flex-direction: column;
+	}
+	.App .booking-details input[type="text"],
+	.App .booking-details input[type="password"],
+	.App .booking-details input[type="email"],
+	.App .booking-details input[type="date"],
+	.App .booking-details input[type="tel"]{
+	  padding-right:3px;
+	}
+  }
+  .App .booking-details .field-sets table{
+	  margin-bottom: 20px;
+  }
+  .App .booking-details .field-sets .table-row:hover{
+	background: linear-gradient(to bottom left, #212121 40%, var(--mainDarkBlue) 100%);
+	color: #fff;
+	cursor: pointer;
+  }
+  .App .booking-details .field-sets table > tbody > tr > td{
+	  padding-right: 25px;
+  }
+
+  /*Bookings History Styles*/
+  .App .bookings-history{
+	text-align: center;
+	display: block;
+	margin: 60px auto;
+	background: linear-gradient(to bottom left, #212121 40%, var(--mainDarkBlue) 100%);
+	box-shadow: 0 5px 40px rgba(0,0,0,0.2);
+	width: 35%;
+  }
+  .App .bookings-history h1{
+	  font-size: 36px;
+	  font-family: var(--mainFontLight);
+	  color: white;
+	  padding: 15px;
+  }
+
+  /*Profile Details Styles*/
+  .App .profile-details *, .App .profile-details *:before, .App .profile-details *:after {
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	box-sizing: border-box;
+  }
+  .App .profile-details{
+	font-family: 'Nunito', sans-serif;
+	background:linear-gradient(to bottom left, #212121 40%, var(--mainDarkBlue) 100%);
+  }
+  .App .profile-details form {
+	max-width: 500px;
+	margin: 10px auto;
+	padding: 10px 20px;
+	background: #f4f7f8;
+	border-radius: 8px;
+  }
+  .App .profile-details h1 {
+	margin: 0 0 30px 0;
+	text-align: center;
+	font-size: 36px;
+  }
+  .App .profile-details input[type="text"],
+  .App .profile-details input[type="password"],
+  .App .profile-details input[type="date"],
+  .App .profile-details input[type="datetime"],
+  .App .profile-details input[type="email"],
+  .App .profile-details input[type="number"],
+  .App .profile-details input[type="search"],
+  .App .profile-details input[type="tel"],
+  .App .profile-details input[type="time"],
+  .App .profile-details input[type="url"],
+  .App .profile-details select {
+	background: rgba(255,255,255,.1);
+	border: none;
+	border-radius: 4px;
+	font-size: 16px;
+	height: auto;
+	margin: 0;
+	outline: 0;
+	padding: 15px;
+	width: 100%;
+	background-color: #e8eeef;
+	color: #8a97a0;
+	-webkit-box-shadow: 0 1px 0 rgba(0,0,0,0.03) inset;
+			box-shadow: 0 1px 0 rgba(0,0,0,0.03) inset;
+	margin-bottom: 30px;
+	-webkit-transition: .4s;
+			transition: .4s;
+  }
+  .App .profile-details input[type="text"],
+  .App .profile-details input[type="password"],
+  .App .profile-details input[type="email"],
+  .App .profile-details input[type="date"],
+  .App .profile-details input[type="tel"] {
+	border-top: 2px solid #d2d9dd;
+  }
+  .App .profile-details input[type="text"]:focus,
+  .App .profile-details input[type="password"]:focus,
+  .App .profile-details input[type="email"]:focus,
+  .App .profile-details input[type="date"]:focus,
+  .App .profile-details input[type="tel"]:focus,
+  .App .profile-details input[type="search"]:focus {
+	background: #d2d9dd;
+	border-radius: 30px;
+	border-top: none;
+  }
+  .App .profile-details select {
+	padding: 6px;
+	height: 32px;
+	border-radius: 2px;
+  }
+  .App .profile-details .update-btn {
+	position: relative;
+	display: block;
+	padding: 19px 39px 18px 39px;
+	color: #FFF;
+	margin: 0 auto;
+	background: linear-gradient(to bottom left, #212121 40%, var(--mainDarkBlue) 100%);
+	font-size: 18px;
+	text-align: center;
+	font-style: normal;
+	width: 100%;
+	border: 1px solid var(--mainDarkBlue);
+	border-width: 1px 1px 3px;
+	margin-bottom: 10px;
+	transition: .4s;
+  }
+  .App .profile-details .update-btn:hover {
+	color: #212121;
+	width: 70%;
+	border-radius: 30px;
+	background: transparent;
+	border-width: 2px 2px 3px;
+	border-color: #212121;
+	cursor: pointer;
+  }
+  .App .profile-details .field-sets{
+	display:flex;
+	flex-direction: row;
+	justify-content: space-around;
+  }
+  .App .profile-details fieldset {
+	margin-left: 30px;
+	margin-bottom: 30px;
+	border: none;
+  }
+  .App .profile-details legend {
+	font-size: 1.4em;
+	margin-bottom: 10px;
+  }
+  .App .profile-details label {
+	display: block;
+	margin-bottom: 8px;
+  }
+  .App .profile-details label.light {
+	font-weight: 300;
+	display: inline;
+  }
+  .App .profile-details .number {
+	background: linear-gradient(to bottom left, #212121 40%, var(--mainDarkBlue) 100%);
+	color: #fff;
+	height: 30px;
+	width: 30px;
+	display: inline-block;
+	font-size: 0.8em;
+	margin-right: 4px;
+	line-height: 30px;
+	text-align: center;
+	text-shadow: 0 1px 0 rgba(255,255,255,0.2);
+	border-radius: 8px 5px 8px 20px;
+  }
+  @media screen and (min-width: 480px) {form {max-width: 480px}}
+  @media screen and (min-width: 1024px) {
+	.App .profile-details form {max-width: 960px}
+	.App .profile-details fieldset {
+	  position: relative;
+	  float: left;
+	  width: 45%;
+	}
+	.App .profile-details fieldset .addresses {
+	  width: 54%;
+	  float: right;
+	}
+  }
+  @media screen and (max-width: 670px){
+	.App .profile-details .field-sets{
+	  flex-direction: column;
+	}
+	.App .profile-details input[type="text"],
+	.App .profile-details input[type="password"],
+	.App .profile-details input[type="email"],
+	.App .profile-details input[type="date"],
+	.App .profile-details input[type="tel"]{
+	  padding-right:3px;
+	}
+  }
+
+  /*Profile Styles*/
+  .App .user-profile ul{
+	  display: flex;
+	  flex-direction: row;
+	  justify-content: space-around;
+	  background:linear-gradient(to bottom left, #212121 40%, var(--mainDarkBlue) 100%);
+  }
+        
