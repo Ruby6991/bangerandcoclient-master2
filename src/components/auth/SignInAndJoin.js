@@ -1,14 +1,22 @@
 import React, { Component } from 'react';
+import axios from 'axios';
+import { Link, Redirect } from "react-router-dom";
 
 class SignInAndJoin extends Component {
-    state = {
-        fullname:'',
-        address:'',
-        email:'',
-        phoneNo:'',
-        dateOfBirth:'',
-        password:''
+    constructor(props){
+        super(props);
+        this.state = {
+            firstName:'',
+            lastName:'',
+            address:'',
+            email:'',
+            phoneNo:'',
+            password:'',
+            redirectToHome:false,
+            redirectToRegister:false
+        }
     }
+    
 
     componentDidMount(){
         const signUpButton = document.getElementById('signUp');
@@ -30,25 +38,78 @@ class SignInAndJoin extends Component {
         })
     }
 
-    handleSubmit = (e) => {
+    handleSubmitSignIn = (e) => {
         e.preventDefault();
         console.log(this.state);
+
+        const login = {
+            email:this.state.email,
+            password:this.state.password
+        }
+
+        const that = this;
+        axios.post("http://localhost:8080/authenticate",login)
+        .then(function(res){
+            const data = res.data;
+            console.log(data)
+            localStorage.setItem("token",data.jwttoken);
+            localStorage.setItem("email",that.state.email);
+            localStorage.setItem("firstName",(data.firstName));
+            that.setState({
+                redirectToHome:true
+            })
+
+        })
+    }
+
+    handleSubmitSignUp = (e) => {
+        e.preventDefault();
+        console.log(this.state);
+        const login = {
+            email:this.state.email,
+            password:this.state.password
+        };
+
+        const user = {
+            firstName: this.state.firstName,
+            lastName:this.state.lastName,
+            email:this.state.email,
+            phoneNo:this.state.phoneNo,
+            address:this.state.address,
+            password:this.state.password
+        }
+
+        const that = this;
+        axios.post("http://localhost:8080/Register",user)
+        .then(function(res){
+            alert("Registered Successfully!");
+            console.log(login);
+            axios.post("http://localhost:8080/authenticate",login)
+            .then(function(res){
+                localStorage.setItem("token",res.data.jwttoken);
+                localStorage.setItem("email",that.state.email);
+                localStorage.setItem("firstName",(res.data.firstName));
+                that.setState({
+                    redirectToHome:true
+                })
+            });
+        })
     }
 
     render() {
         return (
             <div className="outer-container">
+                {
+                   this.state.redirectToHome?(
+                       <Redirect to="/dashboard"/>
+                   ):("")
+                }
                 <div class="container-starter" id="container">
                     <div class="form-container sign-up-container">
-                        <form onSubmit={this.handleSubmit} >
+                        <form onSubmit={this.handleSubmitSignUp} >
                             <h1>Create Account</h1>
-                            <div class="social-container">
-                                <a href="#" class="social"><i class="fab fa-facebook-f"></i></a>
-                                <a href="#" class="social"><i class="fab fa-google-plus-g"></i></a>
-                                <a href="#" class="social"><i class="fab fa-linkedin-in"></i></a>
-                            </div>
-                            <span>or use your email for registration</span>
-                            <input type="text" placeholder="Full Name" id="name" onChange={this.handleChange}/>
+                            <input type="text" placeholder="First Name" id="firstName" onChange={this.handleChange}/>
+                            <input type="text" placeholder="Last Name" id="lastName" onChange={this.handleChange}/>
                             <input type="text" placeholder="Address" id="address" onChange={this.handleChange}/>
                             <input type="tel" placeholder="Phone Number" id="phoneNo" onChange={this.handleChange}/>
                             <input type="email" placeholder="Email" id="email" onChange={this.handleChange}/>
@@ -57,14 +118,8 @@ class SignInAndJoin extends Component {
                         </form>
                     </div>
                     <div class="form-container sign-in-container">
-                        <form onSubmit={this.handleSubmit} >
+                        <form onSubmit={this.handleSubmitSignIn} >
                             <h1>Sign in</h1>
-                            <div class="social-container">
-                                <a href="#" class="social"><i class="fab fa-facebook-f"></i></a>
-                                <a href="#" class="social"><i class="fab fa-google-plus-g"></i></a>
-                                <a href="#" class="social"><i class="fab fa-linkedin-in"></i></a>
-                            </div>
-                            <span>or use your account</span>
                             <input type="email" placeholder="Email" id="email" onChange={this.handleChange} />
                             <input type="password" placeholder="Password" id="password" onChange={this.handleChange}/>
                             <a href="#">Forgot your password?</a>

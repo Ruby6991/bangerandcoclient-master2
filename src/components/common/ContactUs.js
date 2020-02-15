@@ -1,8 +1,11 @@
 import React from 'react'
+import Navbar from '../layout/Navbar';
+import Footer from '../layout/Footer';
 
 const ContactUs = () => {
     return (
         <div className="contact-us">
+            <Navbar/>
             <section class="contact-page-sec">
                 <div class="container">
                 <div class="row">
@@ -72,6 +75,7 @@ const ContactUs = () => {
                 </div>
                 </div>
             </section>
+            <Footer/>
         </div>
     )
 }
