@@ -11,6 +11,7 @@ class SignInAndJoin extends Component {
             address:'',
             email:'',
             phoneNo:'',
+            dob:'',
             password:'',
             redirectToHome:false,
             redirectToRegister:false
@@ -75,6 +76,7 @@ class SignInAndJoin extends Component {
             lastName:this.state.lastName,
             email:this.state.email,
             phoneNo:this.state.phoneNo,
+            dob:this.state.dob,
             address:this.state.address,
             password:this.state.password
         }
@@ -112,6 +114,7 @@ class SignInAndJoin extends Component {
                             <input type="text" placeholder="Last Name" id="lastName" onChange={this.handleChange}/>
                             <input type="text" placeholder="Address" id="address" onChange={this.handleChange}/>
                             <input type="tel" placeholder="Phone Number" id="phoneNo" onChange={this.handleChange}/>
+                            <input type="date" placeholder="Birth date" id="dob" onChange={this.handleChange}/>
                             <input type="email" placeholder="Email" id="email" onChange={this.handleChange}/>
                             <input type="password" placeholder="Password" id="password" onChange={this.handleChange} />
                             <button>Sign Up</button>
