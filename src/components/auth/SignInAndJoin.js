@@ -53,12 +53,13 @@ class SignInAndJoin extends Component {
         .then(function(res){
             const data = res.data;
             console.log(data)
-            localStorage.setItem("token",data.jwttoken);
+            localStorage.setItem("token",data.jwtToken);
             localStorage.setItem("email",that.state.email);
             localStorage.setItem("firstName",(data.firstName));
             that.setState({
                 redirectToHome:true
             })
+            console.log(localStorage);
 
         })
     }
@@ -88,7 +89,7 @@ class SignInAndJoin extends Component {
             console.log(login);
             axios.post("http://localhost:8080/authenticate",login)
             .then(function(res){
-                localStorage.setItem("token",res.data.jwttoken);
+                localStorage.setItem("token",res.data.jwtToken);
                 localStorage.setItem("email",that.state.email);
                 localStorage.setItem("firstName",(res.data.firstName));
                 that.setState({

@@ -3,7 +3,8 @@ import M from "materialize-css";
 
 class ProfileDetails extends Component {
     state = {
-        fullname:'',
+        firstname:'',
+        lastname:'',
         email:'',
         password:'',
         dateOfBirth:'',
@@ -35,15 +36,16 @@ class ProfileDetails extends Component {
                     <div className="field-sets">
                         <fieldset>
                             <legend><span class="number">1</span> Your basic info</legend>
-                            <input type="text" id="name" name="user_name" placeholder="Your Name*" onChange={this.handleChange}/>
+                            <input type="text" id="firstname" name="user_fname" placeholder="First Name*" onChange={this.handleChange}/>
+                            <input type="text" id="lastname" name="user_lname" placeholder="Last Name*" onChange={this.handleChange}/>
                             <input type="email" id="email" name="user_email" placeholder="Your Email*" onChange={this.handleChange}/>
-                            <input type="password" id="password" name="user_password" placeholder="Your Password*" onChange={this.handleChange}/>
                             <input type="text" class="datepicker" id="dateOfBirth" name="date_of_birth" placeholder="Your Date of Birth" onChange={this.handleChange}/>
                             <input type="tel" id="phoneNo" name="phone_no" placeholder="Your Phone Number" onChange={this.handleChange}/>
                             <input type="text" id="address" name="user_address" placeholder="Address " onChange={this.handleChange}/>
                         </fieldset>
                     </div>
-                    <button className="update-btn" type="submit">Update</button>
+                    <button className="update-btn" type="submit">Update Details</button>
+                    <button className="update-btn" >Update Password</button>
                     <button className="update-btn" >Delete Account</button>
                 </form>
                 
