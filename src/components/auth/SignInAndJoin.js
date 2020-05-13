@@ -100,7 +100,15 @@ class SignInAndJoin extends Component {
                     that.setState({
                         redirectToHome:true
                     })
-                });
+                })
+            }).catch(function(error){
+                const res = error.response;
+                console.log(res);
+                if(res.status===500){
+                    alert("The provided email address is already associated with an account. Please enter a new email address."); 
+                }else{
+                    alert("Server Error!");
+                }
             })
         }else{
             alert("Please Fill in all the fields")
