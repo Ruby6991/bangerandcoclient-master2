@@ -62,7 +62,9 @@ class SignInAndJoin extends Component {
         }).catch(function(error){
             const res = error.response;
             if(res.data.trace.includes("INVALID_CREDENTIALS") && res.status===401){
-                alert("Invalid Email or Password. Please Try Again"); //START HERE!
+                alert("Invalid Email or Password. Please Try Again"); 
+            }else if(res.status === 403){
+                alert("User has been Blacklisted"); 
             }else{
                 alert("Server Error!");
             }

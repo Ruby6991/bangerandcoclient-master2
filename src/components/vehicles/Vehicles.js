@@ -1,18 +1,55 @@
 import React, { Component } from 'react';
 import M from "materialize-css";
 import VehicleList from './VehicleList';
-import VehicleCategories from './VehicleCategories';
-import { connect } from 'react-redux'
 import Navbar from '../layout/Navbar';
 import Footer from '../layout/Footer';
+const axios = require("axios")
 
 class Vehicles extends Component {
+    constructor(props){
+        super(props);
+        this.state={
+            category:'',
+            previousCat:'',
+            vehicles:[]
+        }
+        this.selectCategory = this.selectCategory.bind(this);
+    }
+
     componentDidMount(){
         const carousel=document.querySelectorAll('.carousel');
         M.Carousel.init(carousel,{});
+
+        const that = this;
+        console.log(localStorage);
+        const token = 'Bearer '+ localStorage.token;
+        const headersInfo = {
+            Authorization:token
+        }
+        const data = {
+            email:localStorage.email
+        }
+        console.log(headersInfo);
+        axios.post("http://localhost:8080/GetVehicleList",data,{
+            headers:headersInfo
+        }).then(function(res){
+            console.log(res.data);
+            that.setState({
+                vehicles:res.data
+            })
+        }).catch(function(error){
+            console.log(error);
+        })
+       
     }
+
+    selectCategory = (e) => {      
+        this.setState({
+            category:e.target.id
+        })
+    }
+
     render() {
-        const { vehicles } =this.props;
         return (
             <div>
                 <Navbar/>
@@ -41,8 +78,43 @@ class Vehicles extends Component {
                         </div>
                     </nav>
                     <div className="vehicle-list">
-                        <VehicleCategories/>
-                        <VehicleList vehicles={vehicles} />
+                        <div className="category-list">
+                            <h1>Categories</h1>
+                            <div class="cards-list">
+                                <div class="card 1">
+                                    <div class="card_image"> 
+                                        <img src="https://images.unsplash.com/photo-1517994112540-009c47ea476b?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=781&q=80" /> </div>
+                                    <div class="card_title title-white">
+                                        <button class="waves-effect btn-flat btn-large white-text" onClick={this.selectCategory} id="Small Town Cars">Small Town Cars</button>
+                                    </div>
+                                </div>
+                                    <div class="card 2">
+                                        <div class="card_image">
+                                            <img src="https://images.unsplash.com/photo-1566347238843-0782a8526e49?ixlib=rb-1.2.1&auto=format&fit=crop&w=1049&q=80" />
+                                        </div>
+                                    <div class="card_title title-white">
+                                        <button class="waves-effect btn-flat btn-large white-text" onClick={this.selectCategory} id="Family Vehicles">Family Vehicles</button>
+                                    </div>
+                                </div>
+                                <div class="card 3">
+                                    <div class="card_image">
+                                        <img src="https://images.unsplash.com/photo-1515876305430-f06edab8282a?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=750&q=80" />
+                                    </div>
+                                    <div class="card_title">
+                                        <button class="waves-effect btn-flat btn-large white-text" onClick={this.selectCategory} id="Vans">Vans</button>
+                                    </div>
+                                </div>     
+                            </div>
+                        </div>
+                        {
+                            this.state.category==="Small Town Cars"?(
+                                <VehicleList vehicles={this.state.vehicles} category={"Small Town Cars"} />
+                            ):this.state.category==="Family Vehicles"?(
+                                <VehicleList vehicles={this.state.vehicles} category={"Family Vehicles"} />
+                            ):this.state.category==="Vans"?(
+                                <VehicleList vehicles={this.state.vehicles} category={"Vans"} />
+                            ):"No vehicles to Show" 
+                        }   
                     </div>
                 </div>
                 <Footer/>
@@ -51,10 +123,4 @@ class Vehicles extends Component {
     }
 }
 
-const mapStateToProps = (state) => { 
-    return {
-        vehicles: state.vehicle.vehicles
-    }
-}
-
-export default connect(mapStateToProps)(Vehicles);
+export default Vehicles;
