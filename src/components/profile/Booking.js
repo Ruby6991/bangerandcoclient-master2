@@ -1,19 +1,31 @@
-import React, { Component } from 'react';
-import M from "materialize-css";
-import BookingReceipt from './BookingReceipt';
-import Navbar from '../layout/Navbar';
-import Footer from '../layout/Footer';
+import React, { Component } from 'react'
+import M from "materialize-css"
+import BookingReceipt from './BookingReceipt'
+import Navbar from '../layout/Navbar'
+import Footer from '../layout/Footer'
+const axios = require("axios")
 
 class Booking extends Component {
-    state = {
-        bookingID:'',
-        pickupDate:'',
-        pickupTime:'',
-        returnDate:'',
-        returnTime:'',
-        selectedVehicle:'',
-        utilities:'',
-        city:''
+    constructor(props){
+        super(props);
+        this.state={
+            vehicleId:this.props.location.state.id,
+            firstName:'',
+            lastName:'',
+            age:'',
+            phoneNo:'',
+            bookingID:'',
+            pickupDate:'',
+            pickupTime:'',
+            returnDate:'',
+            returnTime:'',
+            utilities:[],
+            city:'',
+            imgUrl:'',
+            model:'',
+            rates:'',
+            description:''
+        }
     }
 
     componentDidMount(){
@@ -25,6 +37,62 @@ class Booking extends Component {
 
         const select = document.querySelectorAll('select');
         M.FormSelect.init(select, {});
+
+        const that = this;
+        const config = {
+            headers:{
+                Authorization:'Bearer '+ localStorage.token
+            }
+        }
+        console.log(this.state);
+        axios.get("http://localhost:8080/GetVehicle/"+ this.state.vehicleId, config)
+        .then(function(res){
+                console.log(res.data)
+                that.setState({
+                    imgUrl:res.data.imgUrl,
+                    model:res.data.model,
+                    rates:res.data.rates,
+                    description:res.data.description
+                })
+                console.log("Vehicle Data Received!");
+            }).catch(function(error){
+                console.log("Vehicle data error ",error.response);
+            }) 
+
+        const data = {
+            email:localStorage.email
+        }
+        axios.post("http://localhost:8080/GetUser",data,config)
+        .then(function(res){
+            console.log(res.data);
+            const data = res.data;
+            let dob="";
+            if(data.dateOfBirth!==null){
+                let splitDate=data.dateOfBirth.toString().split("T");
+                dob = new Date(splitDate[0]);
+                // dob.setDate(dob.getDate()+1);
+                // splitDate= dob.toISOString().split("T");
+                // dob=splitDate[0];
+                // console.log(dob);
+                dob= Math.floor((new Date() - new Date(splitDate[0]).getTime()));
+            }
+            that.setState({
+                firstName:data.firstName,
+                lastName:data.lastName,
+                age:dob,
+                phoneNo:data.phoneNo
+            })
+        }).catch(function(error){
+            console.log(error);
+            if(error.response.status===401){
+                localStorage.removeItem("token");
+                localStorage.removeItem("email");
+                localStorage.removeItem("name");
+                that.setState({
+                    redirectToHome:true
+                })
+            }
+        }) 
     }
 
     handleChange = (e) => {
@@ -36,6 +104,35 @@ class Booking extends Component {
     handleSubmit = (e) => {
         e.preventDefault();
         console.log(this.state);
+
+        const token = 'Bearer '+ localStorage.token;
+        const headersInfo = {
+            Authorization:token
+        }
+        
+        const data = {
+            userID:localStorage.email,
+            vehicleId:this.state.vehicleId,
+            pickupDate:this.state.pickupDate,
+            pickupTime:this.state.pickupTime,
+            returnDate:this.state.returnDate,
+            returnTime:this.state.returnTime,
+            utilities:this.state.utilities,
+            city:this.state.city
+        }
+        console.log(data);
+
+        axios.put("http://localhost:8080/CreateBooking",data,{
+            headers:headersInfo
+        })
+            .then(function(res){
+                console.log("Booking created successfully!");
+                alert("Booking created successfully!");
+                window.location.reload();
+            }).catch(function(error){
+                console.log("Booking creation un-successful!\nError : ",error.response);
+                alert("Booking creation un-successful!");
+         })
     }
 
     render() {
@@ -47,7 +144,7 @@ class Booking extends Component {
                         <h1>Start Reservation</h1>
                         <div className="field-sets">
                             <fieldset>
-                                <legend><span class="number">1</span> Reservation Details</legend>
+                                <legend><span class="number">1</span> Reservation Details </legend>
                                 <div className="row-info">
                                     <div className="row">
                                         <label for="pickupDate">Pick-up Date</label>
@@ -72,12 +169,12 @@ class Booking extends Component {
                                 <legend><span class="number">2</span>Selected Vehicle Details</legend>
                                 <div class="card">
                                     <div class="card-image">
-                                        <img src="https://images.unsplash.com/photo-1556448851-9359658faa54?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1050&q=80"/>
-                                        <span class="card-title">Card Title</span>
+                                        <img src={this.state.imgUrl} alt=""/>
+                                        <span class="card-title">{this.state.model}<br/>{this.state.rates+" Per Day"}</span>
+                                        
                                     </div>
                                     <div class="card-content">
-                                        <p>I am a very simple card. I am good at containing small bits of information.
-                                        I am convenient because I require little markup to use effectively.</p>
+                                        <p>{this.state.description}</p>
                                     </div>
                                     <div class="card-action">
                                         <button>Change Vehicle</button>
@@ -127,21 +224,17 @@ class Booking extends Component {
                                 <div className="row-info">
                                     <div className="row">
                                         <label for="firstName">First Name</label>
-                                        <input id="firstName" name="first_name" placeholder="First Name" type="text" class="validate" onChange={this.handleChange}/>
+                                        <input id="firstName" name="first_name" value={this.state.firstName} type="text" class="validate" onChange={this.handleChange}/>
                                     </div>
                                     <div className="row">
                                         <label for="lastName">Last Name</label>
-                                        <input id="lastName" name="last_name" placeholder="Last Name" type="text" class="validate" onChange={this.handleChange}/>
+                                        <input id="lastName" name="last_name" value={this.state.lastName} type="text" class="validate" onChange={this.handleChange}/>
                                     </div>
                                 </div>
                                 <div className="row-info">
                                     <div className="row">
-                                        <label for="ageGroup">Age</label>
-                                        <select id="ageGroup">
-                                            <option value="" disabled selected>Choose your age</option>
-                                            <option value="1">Below 25</option>
-                                            <option value="2">Above 25</option>
-                                        </select>
+                                        <label for="age">Age</label>
+                                        <input id="firstName" name="first_name" value={this.state.firstName} type="text" class="validate" onChange={this.handleChange}/>
                                     </div>
                                     <div className="row">
                                         <label for="phoneNumber">Phone Number</label>
