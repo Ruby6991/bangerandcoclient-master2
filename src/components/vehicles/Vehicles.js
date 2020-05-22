@@ -113,7 +113,7 @@ class Vehicles extends Component {
                                 <VehicleList vehicles={this.state.vehicles} category={"Family Vehicles"} />
                             ):this.state.category==="Vans"?(
                                 <VehicleList vehicles={this.state.vehicles} category={"Vans"} />
-                            ):"No vehicles to Show" 
+                            ):"" 
                         }   
                     </div>
                 </div>
