@@ -1,8 +1,12 @@
-import React, { Component } from 'react'
+import React, { Component , useState } from 'react'
 import M from "materialize-css"
 import BookingReceipt from './BookingReceipt'
 import Navbar from '../layout/Navbar'
 import Footer from '../layout/Footer'
+import { RangeDatePicker } from '@y0c/react-datepicker';
+import '@y0c/react-datepicker/assets/styles/calendar.scss';
+import 'moment/locale/ko';
+import TimeKeeper from 'react-timekeeper';
 const axios = require("axios")
 
 class Booking extends Component {
@@ -12,28 +16,30 @@ class Booking extends Component {
             vehicleId:this.props.location.state.id,
             firstName:'',
             lastName:'',
+            nic:'',
             age:'',
             phoneNo:'',
-            bookingID:'',
+            selectedUtilities:[],
             pickupDate:'',
             pickupTime:'',
             returnDate:'',
             returnTime:'',
+            pickupDateTime:'',
+            dropDateTime:'',
             utilities:[],
-            city:'',
             imgUrl:'',
             model:'',
             rates:'',
-            description:''
+            description:'',
+            selectedFile:''
         }
+        this.toTimestamp = this.toTimestamp.bind(this);
+        this.onPickTimeChange = this.onPickTimeChange.bind(this);
+        this.onDropTimeChange = this.onDropTimeChange.bind(this);
     }
+    
 
     componentDidMount(){
-        const datepicker=document.querySelectorAll('.datepicker');
-        M.Datepicker.init(datepicker,{});
-
-        const timepicker = document.querySelectorAll('.timepicker');
-        M.Timepicker.init(timepicker,{});
 
         const select = document.querySelectorAll('select');
         M.FormSelect.init(select, {});
@@ -44,7 +50,7 @@ class Booking extends Component {
                 Authorization:'Bearer '+ localStorage.token
             }
         }
-        console.log(this.state);
+
         axios.get("http://localhost:8080/GetVehicle/"+ this.state.vehicleId, config)
         .then(function(res){
                 console.log(res.data)
@@ -64,41 +70,86 @@ class Booking extends Component {
         }
         axios.post("http://localhost:8080/GetUser",data,config)
         .then(function(res){
+                console.log(res.data);
+                const data = res.data;
+                let age="";
+                if(data.dateOfBirth!==null){
+                    let splitDate=data.dateOfBirth.toString().split("T");
+                    let today = new Date();
+                    let birthDate = new Date(splitDate[0]);
+                    age = today.getFullYear() - birthDate.getFullYear();
+                    let m = today.getMonth() - birthDate.getMonth();
+                    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+                        age--;
+                    }
+                    console.log(age);
+                }
+                that.setState({
+                    firstName:data.firstName,
+                    lastName:data.lastName,
+                    age:age,
+                    phoneNo:data.phoneNo
+                })
+            }).catch(function(error){
+                console.log(error);
+            }) 
+
+        axios.post("http://localhost:8080/GetUtilityList",data,config)
+        .then(function(res){
             console.log(res.data);
-            const data = res.data;
-            let dob="";
-            if(data.dateOfBirth!==null){
-                let splitDate=data.dateOfBirth.toString().split("T");
-                dob = new Date(splitDate[0]);
-                // dob.setDate(dob.getDate()+1);
-                // splitDate= dob.toISOString().split("T");
-                // dob=splitDate[0];
-                // console.log(dob);
-                dob= Math.floor((new Date() - new Date(splitDate[0]).getTime()));
-            }
             that.setState({
-                firstName:data.firstName,
-                lastName:data.lastName,
-                age:dob,
-                phoneNo:data.phoneNo
+                utilities:res.data
             })
         }).catch(function(error){
-            console.log(error);
-            if(error.response.status===401){
-                localStorage.removeItem("token");
-                localStorage.removeItem("email");
-                localStorage.removeItem("name");
-                that.setState({
-                    redirectToHome:true
-                })
-            }
-        }) 
+            console.log(error.response);
+        })
     }
 
     handleChange = (e) => {
         this.setState({
             [e.target.id]: e.target.value
         })
+    }
+
+    handleCheckbox = (e) => {
+        this.setState({
+            selectedUtilities: [...this.state.selectedUtilities, e.target.name] 
+        })
+    }
+
+    onDateChange = (startDate, endDate) => {
+        this.setState({
+            pickupDate: startDate,
+            returnDate: endDate
+        })
+    }
+
+    onPickTimeChange = (time) => {
+        this.setState({
+            pickupTime: time.formatted12
+        })
+      }
+
+    onDropTimeChange = (time) => {
+        this.setState({
+            returnTime: time.formatted12
+        })
+    }
+
+    toTimestamp(strDate){
+        var datum = Date.parse(strDate);
+        return datum/1000;
+    }
+     
+    convertTo24Hour(time) {
+        var hours = parseInt(time.substr(0, 2));
+        if(time.indexOf('am') != -1 && hours == 12) {
+            time = time.replace('12', '0');
+        }
+        if(time.indexOf('pm')  != -1 && hours < 12) {
+            time = time.replace(hours, (hours + 12));
+        }
+        return time.replace(/(am|pm)/, '');
     }
 
     handleSubmit = (e) => {
@@ -109,16 +160,33 @@ class Booking extends Component {
         const headersInfo = {
             Authorization:token
         }
-        
+
+        let splitPickUpDate=this.state.pickupDate.toISOString().split("T");
+        let pickDate = new Date(splitPickUpDate[0]);
+        pickDate.setDate(pickDate.getDate()+1);
+        splitPickUpDate= pickDate.toISOString().split("T");
+        var thePickdate = new Date(Date.parse(splitPickUpDate[0] + ' ' + this.convertTo24Hour(this.state.pickupTime)));
+
+        let splitDropDate=this.state.returnDate.toISOString().split("T");
+        let dropDate = new Date(splitDropDate[0]);
+        dropDate.setDate(dropDate.getDate()+1);
+        splitDropDate= dropDate.toISOString().split("T");
+        var theReturndate = new Date(Date.parse(splitDropDate[0] + ' ' + this.convertTo24Hour(this.state.returnTime)));
+
+        const userdata = {
+            email:localStorage.email
+        }
+
+        const vehicleData = {
+            id:this.state.vehicleId
+        }
+
         const data = {
-            userID:localStorage.email,
-            vehicleId:this.state.vehicleId,
-            pickupDate:this.state.pickupDate,
-            pickupTime:this.state.pickupTime,
-            returnDate:this.state.returnDate,
-            returnTime:this.state.returnTime,
-            utilities:this.state.utilities,
-            city:this.state.city
+            user:userdata,
+            vehicle:vehicleData,
+            pickupDateTime: thePickdate,
+            dropDateTime:theReturndate,
+            selectedUtilities:this.state.selectedUtilities
         }
         console.log(data);
 
@@ -128,12 +196,48 @@ class Booking extends Component {
             .then(function(res){
                 console.log("Booking created successfully!");
                 alert("Booking created successfully!");
-                window.location.reload();
+                // window.location.reload();
             }).catch(function(error){
                 console.log("Booking creation un-successful!\nError : ",error.response);
                 alert("Booking creation un-successful!");
          })
+
+        const docInfo = {
+            nic:this.state.nic
+        }
+        console.log(data);
+
+        axios.put("http://localhost:8080/UpdateUserNIC/"+localStorage.email,docInfo,{
+            headers:headersInfo
+        })
+            .then(function(res){
+                console.log("NIC updated successfully!");
+            }).catch(function(error){
+                console.log("NIC update un-successful!\nError : ",error.response);
+         })
+
+        console.log(this.state);
+        const formData = new FormData();
+        formData.append('file', this.state.selectedFile);
+        axios.post("http://localhost:8080/upload", formData,{
+            headers:headersInfo
+        })
+            .then(res => {
+                console.log(res.data);
+                alert("File uploaded successfully.")
+            }).catch(function(error){
+                console.log("Error : ",error.response);
+                alert("File upload un-successful!");
+         })
     }
+
+    onFileChangeHandler = (e) => {
+        e.preventDefault();
+        this.setState({
+            selectedFile: e.target.files[0]
+        });
+        console.log(this.state);
+    };
 
     render() {
         return (
@@ -147,22 +251,22 @@ class Booking extends Component {
                                 <legend><span class="number">1</span> Reservation Details </legend>
                                 <div className="row-info">
                                     <div className="row">
-                                        <label for="pickupDate">Pick-up Date</label>
-                                        <input type="text" id="pickupDate" name="pickup_date" placeholder="Pick-up Date" class="datepicker" onChange={this.handleChange}/>
-                                    </div>
-                                    <div className="row">
-                                        <label for="pickupTime">Pick-up Time</label>
-                                        <input type="text" id=" pickupTime" name="pickup_time" placeholder="Pick-up Time" class="timepicker" onChange={this.handleChange}/>
+                                        <label for="pickupDate">Date</label>
+                                        <RangeDatePicker locale="ko" onChange={this.onDateChange}/>
                                     </div>
                                 </div>
                                 <div className="row-info">
                                     <div className="row">
-                                        <label for="returnDate">Return Date</label>
-                                        <input type="text" id="returnDate" name="return_date" placeholder="Return Date" class="datepicker" onChange={this.handleChange}/>
+                                        <label for="pickupTime">Pick-up Time</label>
+                                        <TimeKeeper
+                                            onChange={this.onPickTimeChange}
+                                        />
                                     </div>
                                     <div className="row">
-                                        <label for="returnTime">Return Time</label>
-                                        <input type="text" id="returnTime" name="return_time" placeholder="Return Time" class="timepicker" onChange={this.handleChange}/>
+                                        <label for="pickupTime">Return Time</label>
+                                        <TimeKeeper
+                                            onChange={this.onDropTimeChange}
+                                        />
                                     </div>
                                 </div>
                                 
@@ -184,39 +288,22 @@ class Booking extends Component {
                                 <legend><span class="number">3</span> Additional Utilities Details</legend>
                                 <table >
                                     <tbody>
-                                    <tr className="table-row">
-                                        <td><img class="responsive-img" src="https://www.teslarati.com/wp-content/uploads/2018/10/nav-on-autopilot.jpg"/></td>
-                                        <td>GPS</td>
-                                        <td>Rs.500/hr</td>
-                                        <td>
-                                            <label>
-                                                <input type="checkbox" />
-                                                <span></span>
-                                            </label>
-                                        </td>
-                                    </tr>
-                                    <tr className="table-row">
-                                        <td><img class="responsive-img" src="https://peopledotcom.files.wordpress.com/2019/05/car-seat-2.jpg" /></td>
-                                        <td>CarSeat</td>
-                                        <td>Rs.1500/hr</td>
-                                        <td>
-                                            <label>
-                                                <input type="checkbox" />
-                                                <span></span>
-                                            </label>
-                                        </td>
-                                    </tr>
-                                    <tr className="table-row">
-                                        <td><img class="responsive-img" src="https://performancedrive.com.au/wp-content/uploads/2018/07/Rolls-Royce-Cullinan-Australia-champagne-cooler.jpg"/></td>
-                                        <td>Wine Chillers</td>
-                                        <td>Rs.5490/hr</td>
-                                        <td>
-                                            <label>
-                                                <input type="checkbox" />
-                                                <span></span>
-                                            </label>
-                                        </td>
-                                    </tr>
+                                    { this.state.utilities && this.state.utilities.map(utility => 
+                                        {
+                                            return(
+                                                <tr className="table-row">
+                                                    <td><img class="responsive-img" src={utility.utilityImg} alt=""/></td>
+                                                    <td>{utility.utilityName}</td>
+                                                    <td>Rs.{utility.utilityRate}/hr</td>
+                                                    <td>
+                                                        <label>
+                                                            <input name={utility.utilityName} type="checkbox" onChange={this.handleCheckbox} />
+                                                            <span></span>
+                                                        </label>
+                                                    </td>
+                                                </tr>
+                                            )
+                                        })}
                                     </tbody>
                                 </table>
 
@@ -234,20 +321,21 @@ class Booking extends Component {
                                 <div className="row-info">
                                     <div className="row">
                                         <label for="age">Age</label>
-                                        <input id="firstName" name="first_name" value={this.state.firstName} type="text" class="validate" onChange={this.handleChange}/>
+                                        <input id="firstName" name="first_name" value={this.state.age} type="text" class="validate" onChange={this.handleChange}/>
                                     </div>
                                     <div className="row">
                                         <label for="phoneNumber">Phone Number</label>
-                                        <input id="phoneNumber" name="phone_number" type="tel" placeholder="Phone Number" class="validate"  onChange={this.handleChange}/>
+                                        <input id="phoneNumber" name="phone_number" type="tel" value={this.state.phoneNo} class="validate"  onChange={this.handleChange}/>
                                     </div>
                                 </div>
                                 <label for="nicNumber">NIC</label>
-                                <input type="text" id="nicNumber" name="nic_number" placeholder="NIC " onChange={this.handleChange}/>
+                                <input type="text" id="nic" name="nic_number" placeholder="NIC " onChange={this.handleChange}/>
                                 <label for="nic-upload">Upload Scanned Copy of NIC</label>
                                 <div id="nic-upload" class="file-field input-field">
                                     <div id="upload-btn" class="btn-flat">
                                         <span>Upload</span>
-                                        <input type="file"/>
+                                        {/* <input type="file"/> */}
+                                        <input type="file" className="form-control" name="file" onChange={this.onFileChangeHandler}/>
                                     </div>
                                     <div class="file-path-wrapper">
                                         <input class="file-path validate" type="text"/>
