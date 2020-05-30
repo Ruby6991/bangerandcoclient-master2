@@ -1,4 +1,4 @@
-import React, { Component , useState } from 'react'
+import React, { Component } from 'react'
 import M from "materialize-css"
 import BookingReceipt from './BookingReceipt'
 import Navbar from '../layout/Navbar'
@@ -7,6 +7,7 @@ import { RangeDatePicker } from '@y0c/react-datepicker';
 import '@y0c/react-datepicker/assets/styles/calendar.scss';
 import 'moment/locale/ko';
 import TimeKeeper from 'react-timekeeper';
+import { Redirect } from "react-router-dom";
 const axios = require("axios")
 
 class Booking extends Component {
@@ -26,20 +27,27 @@ class Booking extends Component {
             returnTime:'',
             pickupDateTime:'',
             dropDateTime:'',
+            duration:'',
             utilities:[],
             imgUrl:'',
             model:'',
             rates:'',
             description:'',
-            selectedFile:''
+            selectedFile:'',
+            costs:[],
+            isBookingComplete:false
         }
         this.toTimestamp = this.toTimestamp.bind(this);
         this.onPickTimeChange = this.onPickTimeChange.bind(this);
         this.onDropTimeChange = this.onDropTimeChange.bind(this);
+        this.calculateCost = this.calculateCost.bind(this);
+        this.handleSubmit = this.handleSubmit.bind(this);
     }
     
 
     componentDidMount(){
+        const modal = document.querySelectorAll('.modal');
+        M.Modal.init(modal, {});
 
         const select = document.querySelectorAll('select');
         M.FormSelect.init(select, {});
@@ -140,6 +148,27 @@ class Booking extends Component {
         var datum = Date.parse(strDate);
         return datum/1000;
     }
+
+    calculateCost(){
+        let allCosts=[];
+        let duration = this.state.duration;
+        let vehicleCost = this.state.rates * duration;
+        let utilities=this.state.selectedUtilities;
+        let totalutilityCost=0;
+        for (let i = 0; i < utilities.length; i++) {
+            for(let a = 0; a< this.state.utilities.length; a++){
+                if(utilities[i] === this.state.utilities[a].utilityName){
+                    totalutilityCost = totalutilityCost + (this.state.utilities[a].utilityRate*duration);
+                }
+            }
+        }
+        
+        let totalCost = vehicleCost + totalutilityCost ;
+        allCosts.push(vehicleCost);
+        allCosts.push(totalutilityCost);
+        allCosts.push(totalCost);
+        return allCosts;
+    }
      
     convertTo24Hour(time) {
         var hours = parseInt(time.substr(0, 2));
@@ -173,39 +202,56 @@ class Booking extends Component {
         splitDropDate= dropDate.toISOString().split("T");
         var theReturndate = new Date(Date.parse(splitDropDate[0] + ' ' + this.convertTo24Hour(this.state.returnTime)));
 
-        const userdata = {
-            email:localStorage.email
-        }
+        let numOfDays = Math.round((dropDate-pickDate)/(1000*60*60*24));
 
-        const vehicleData = {
-            id:this.state.vehicleId
-        }
-
-        const data = {
-            user:userdata,
-            vehicle:vehicleData,
-            pickupDateTime: thePickdate,
+        this.setState({
+            pickupDateTime:thePickdate,
             dropDateTime:theReturndate,
-            selectedUtilities:this.state.selectedUtilities
-        }
-        console.log(data);
+            duration:numOfDays }, () => {
+                this.setState({
+                    costs:this.calculateCost()
+                }, () => {
+                    const that = this;
+                    const userdata = {
+                        email:localStorage.email
+                    }
+            
+                    const vehicleData = {
+                        id:this.state.vehicleId
+                    }
+            
+                    const data = {
+                        user:userdata,
+                        vehicle:vehicleData,
+                        pickupDateTime: thePickdate,
+                        dropDateTime:theReturndate,
+                        selectedUtilities:this.state.selectedUtilities,
+                        totalAmount:this.state.costs[2]
+                    }
+            
+                    console.log(data);
+            
+                    axios.put("http://localhost:8080/CreateBooking",data,{
+                        headers:headersInfo
+                    })
+                        .then(function(res){
+                            console.log("Booking created successfully!");
+                            alert("Booking created successfully!");
+                            that.setState({
+                                isBookingComplete:true
+                            })
+                        }).catch(function(error){
+                            console.log("Booking creation un-successful!\nError : ",error);
+                            alert("Booking creation un-successful!");
+                     })
+                })
+                
+          }); 
 
-        axios.put("http://localhost:8080/CreateBooking",data,{
-            headers:headersInfo
-        })
-            .then(function(res){
-                console.log("Booking created successfully!");
-                alert("Booking created successfully!");
-                // window.location.reload();
-            }).catch(function(error){
-                console.log("Booking creation un-successful!\nError : ",error.response);
-                alert("Booking creation un-successful!");
-         })
 
         const docInfo = {
             nic:this.state.nic
         }
-        console.log(data);
 
         axios.put("http://localhost:8080/UpdateUserNIC/"+localStorage.email,docInfo,{
             headers:headersInfo
@@ -219,14 +265,15 @@ class Booking extends Component {
         console.log(this.state);
         const formData = new FormData();
         formData.append('file', this.state.selectedFile);
-        axios.post("http://localhost:8080/upload", formData,{
+        formData.append('userId', localStorage.email);
+        axios.post("http://localhost:8080/doc/upload", formData,{
             headers:headersInfo
         })
             .then(res => {
                 console.log(res.data);
                 alert("File uploaded successfully.")
             }).catch(function(error){
-                console.log("Error : ",error.response);
+                console.log("Error : ",error);
                 alert("File upload un-successful!");
          })
     }
@@ -243,8 +290,20 @@ class Booking extends Component {
         return (
             <div>
                 <Navbar/>
+                {
+                   this.state.isBookingComplete?(
+                       <Redirect to={{
+                            state: {selectedUtilities:this.state.selectedUtilities,
+                                    pickupDateTime:this.state.pickupDateTime,
+                                    dropDateTime:this.state.dropDateTime,
+                                    model:this.state.model,
+                                    costs:this.state.costs },
+                            pathname: '/bookingReceipt'
+                          }}/>
+                   ):("")
+                }
                 <div className="booking-details">
-                    <form onSubmit={this.handleSubmit}>
+                    <form>
                         <h1>Start Reservation</h1>
                         <div className="field-sets">
                             <fieldset>
@@ -341,12 +400,31 @@ class Booking extends Component {
                                         <input class="file-path validate" type="text"/>
                                     </div>
                                 </div>
-                                <h4>Booking Summary</h4>
-                                <BookingReceipt/>
-                                
+                                {/* <div class="card">
+                                    <div class="card-content">
+                                        <span class="card-title"><button id="edit-btn" onClick={this.handleCalculate}>Calculate Total Cost</button></span>
+                                        <table >
+                                            <tbody>
+                                                <tr>
+                                                    <th>Vehicle Cost : </th>
+                                                    <td>{this.state.costs[0]}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th>Utilities Cost : </th>
+                                                    <td>{this.state.costs[1]}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th>Total Amount : </th>
+                                                    <td>{this.state.costs[2]}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div> */}
+
                             </fieldset>
                         </div>
-                        <button className="reserve-btn" type="submit">Complete Your Booking</button>
+                        <button className="reserve-btn" type="submit" onClick={this.handleSubmit}>Complete Your Booking</button>
                     </form>
                 </div>
                 <Footer/>

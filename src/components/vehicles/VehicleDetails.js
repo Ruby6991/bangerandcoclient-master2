@@ -43,7 +43,7 @@ class VehicleDetails extends Component {
                 console.log("Vehicle Data Received!");
             }).catch(function(error){
                 console.log("Vehicle data error ",error.response);
-            }) 
+        }) 
     }
 
     createBooking(){

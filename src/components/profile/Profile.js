@@ -1,11 +1,9 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import ProfileDetails from './ProfileDetails';
 import BookingsHistory from './BookingsHistory';
 import M from "materialize-css";
 import Navbar from '../layout/Navbar';
 import Footer from '../layout/Footer';
-// const axios = require("axios");
 
 class Profile extends Component {
     componentDidMount(){
