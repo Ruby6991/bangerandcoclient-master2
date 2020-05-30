@@ -30,11 +30,13 @@ class Booking extends Component {
             duration:'',
             utilities:[],
             imgUrl:'',
+            category:'',
             model:'',
             rates:'',
             description:'',
             selectedFile:'',
             costs:[],
+            document:'',
             isBookingComplete:false
         }
         this.toTimestamp = this.toTimestamp.bind(this);
@@ -66,7 +68,8 @@ class Booking extends Component {
                     imgUrl:res.data.imgUrl,
                     model:res.data.model,
                     rates:res.data.rates,
-                    description:res.data.description
+                    description:res.data.description,
+                    category:res.data.category
                 })
                 console.log("Vehicle Data Received!");
             }).catch(function(error){
@@ -96,7 +99,8 @@ class Booking extends Component {
                     firstName:data.firstName,
                     lastName:data.lastName,
                     age:age,
-                    phoneNo:data.phoneNo
+                    phoneNo:data.phoneNo,
+                    nic:data.nic
                 })
             }).catch(function(error){
                 console.log(error);
@@ -107,6 +111,16 @@ class Booking extends Component {
             console.log(res.data);
             that.setState({
                 utilities:res.data
+            })
+        }).catch(function(error){
+            console.log(error.response);
+        })
+
+        axios.get("http://localhost:8080/doc/getDocument/"+localStorage.email,config)
+        .then(function(res){
+            // console.log(res.data);
+            that.setState({
+                document:res.data
             })
         }).catch(function(error){
             console.log(error.response);
@@ -152,6 +166,16 @@ class Booking extends Component {
     calculateCost(){
         let allCosts=[];
         let duration = this.state.duration;
+
+        if(typeof duration==="string"){
+            let hours = duration.split(' ');
+            if(hours[0]>5){
+                duration=1;
+            }else{
+                duration=0.5;
+            }
+        }
+        
         let vehicleCost = this.state.rates * duration;
         let utilities=this.state.selectedUtilities;
         let totalutilityCost=0;
@@ -180,15 +204,42 @@ class Booking extends Component {
         }
         return time.replace(/(am|pm)/, '');
     }
+   
 
     handleSubmit = (e) => {
         e.preventDefault();
-        console.log(this.state);
+
+        if(this.state.age<25 && (this.state.category==='Family Vehicles' || this.state.category==='Vans')){
+            alert("Sorry. Users under 25 can only book Small Town Cars");
+            return;
+        }
+
+        if(this.state.pickupDate==='' || this.state.returnDate===''){
+            alert("Please Fill in the Pick up and Drop Off Dates!");
+            return;
+        }
 
         const token = 'Bearer '+ localStorage.token;
         const headersInfo = {
             Authorization:token
         }
+
+        if(this.state.document===''){
+            const formData = new FormData();
+            formData.append('file', this.state.selectedFile);
+            formData.append('userId', localStorage.email);
+            axios.post("http://localhost:8080/doc/upload", formData,{
+                headers:headersInfo
+            })
+                .then(res => {
+                    console.log(res.data);
+                    console.log("NIC uploaded successfully.");
+                }).catch(function(error){
+                    console.log("Error : ",error);
+                    console.log("NIC Upload Failed");
+            })
+        }
+
 
         let splitPickUpDate=this.state.pickupDate.toISOString().split("T");
         let pickDate = new Date(splitPickUpDate[0]);
@@ -203,6 +254,20 @@ class Booking extends Component {
         var theReturndate = new Date(Date.parse(splitDropDate[0] + ' ' + this.convertTo24Hour(this.state.returnTime)));
 
         let numOfDays = Math.round((dropDate-pickDate)/(1000*60*60*24));
+
+        let diff;
+        if(numOfDays<1){
+            diff = Math.abs(theReturndate.getTime() - thePickdate.getTime()) / 3600000;
+            numOfDays=diff+' hours';
+        }
+
+        if(diff<=4){
+            alert("Sorry. You Cannot make a booking for less than 5 Hours.");
+            return;
+        }else if(numOfDays>14){
+            alert("Sorry. You Cannot make a booking for more than 2 weeks.");
+            return;
+        }
 
         this.setState({
             pickupDateTime:thePickdate,
@@ -219,33 +284,49 @@ class Booking extends Component {
                     const vehicleData = {
                         id:this.state.vehicleId
                     }
+
+                    const selectedUtils = [];
+
+                    for (let i = 0; i < this.state.selectedUtilities.length; i++) {
+                        for(let a = 0; a< this.state.utilities.length; a++){
+                            if(this.state.selectedUtilities[i] === this.state.utilities[a].utilityName){
+                                const utilityData = {
+                                    id:this.state.utilities[a].id
+                                }
+                                selectedUtils.push(utilityData);
+                            }
+                        }
+                    }
             
                     const data = {
                         user:userdata,
                         vehicle:vehicleData,
                         pickupDateTime: thePickdate,
                         dropDateTime:theReturndate,
-                        selectedUtilities:this.state.selectedUtilities,
+                        utilities:selectedUtils,
                         totalAmount:this.state.costs[2]
                     }
             
                     console.log(data);
             
-                    axios.put("http://localhost:8080/CreateBooking",data,{
+                    if(this.state.document!=='' || this.state.selectedFile!==''){
+                        axios.put("http://localhost:8080/CreateBooking",data,{
                         headers:headersInfo
-                    })
-                        .then(function(res){
-                            console.log("Booking created successfully!");
-                            alert("Booking created successfully!");
-                            that.setState({
-                                isBookingComplete:true
-                            })
-                        }).catch(function(error){
-                            console.log("Booking creation un-successful!\nError : ",error);
-                            alert("Booking creation un-successful!");
-                     })
-                })
-                
+                        })
+                            .then(function(res){
+                                console.log("Booking created successfully!");
+                                alert("Booking created successfully!");
+                                that.setState({
+                                    isBookingComplete:true
+                                })
+                            }).catch(function(error){
+                                console.log("Booking creation un-successful!\nError : ",error.response);
+                                alert("Booking creation un-successful!");
+                        })
+                    }else{
+                        alert("Please upload a scanned copy of your NIC to create a Booking");
+                    } 
+                })       
           }); 
 
 
@@ -262,20 +343,6 @@ class Booking extends Component {
                 console.log("NIC update un-successful!\nError : ",error.response);
          })
 
-        console.log(this.state);
-        const formData = new FormData();
-        formData.append('file', this.state.selectedFile);
-        formData.append('userId', localStorage.email);
-        axios.post("http://localhost:8080/doc/upload", formData,{
-            headers:headersInfo
-        })
-            .then(res => {
-                console.log(res.data);
-                alert("File uploaded successfully.")
-            }).catch(function(error){
-                console.log("Error : ",error);
-                alert("File upload un-successful!");
-         })
     }
 
     onFileChangeHandler = (e) => {
@@ -388,43 +455,27 @@ class Booking extends Component {
                                     </div>
                                 </div>
                                 <label for="nicNumber">NIC</label>
-                                <input type="text" id="nic" name="nic_number" placeholder="NIC " onChange={this.handleChange}/>
-                                <label for="nic-upload">Upload Scanned Copy of NIC</label>
-                                <div id="nic-upload" class="file-field input-field">
-                                    <div id="upload-btn" class="btn-flat">
-                                        <span>Upload</span>
-                                        {/* <input type="file"/> */}
-                                        <input type="file" className="form-control" name="file" onChange={this.onFileChangeHandler}/>
-                                    </div>
-                                    <div class="file-path-wrapper">
-                                        <input class="file-path validate" type="text"/>
-                                    </div>
-                                </div>
-                                {/* <div class="card">
-                                    <div class="card-content">
-                                        <span class="card-title"><button id="edit-btn" onClick={this.handleCalculate}>Calculate Total Cost</button></span>
-                                        <table >
-                                            <tbody>
-                                                <tr>
-                                                    <th>Vehicle Cost : </th>
-                                                    <td>{this.state.costs[0]}</td>
-                                                </tr>
-                                                <tr>
-                                                    <th>Utilities Cost : </th>
-                                                    <td>{this.state.costs[1]}</td>
-                                                </tr>
-                                                <tr>
-                                                    <th>Total Amount : </th>
-                                                    <td>{this.state.costs[2]}</td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div> */}
-
+                                <input type="text" id="nic" name="nic_number" value={this.state.nic} placeholder="NIC " onChange={this.handleChange}/>
+                                
+                                {
+                                    this.state.document===''?(
+                                        <div>
+                                            <label for="nic-upload">Upload Scanned Copy of NIC/ Driver's License</label>
+                                            <div id="nic-upload" class="file-field input-field">
+                                                <div id="upload-btn" class="btn-flat">
+                                                    <span>Upload</span>
+                                                    <input type="file" className="form-control" name="file" onChange={this.onFileChangeHandler}/>
+                                                </div>
+                                                <div class="file-path-wrapper">
+                                                    <input class="file-path validate" type="text"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ):("")
+                                }
                             </fieldset>
                         </div>
-                        <button className="reserve-btn" type="submit" onClick={this.handleSubmit}>Complete Your Booking</button>
+                        <button className="reserve-btn" type="button" onClick={this.handleSubmit}>Complete Your Booking</button>
                     </form>
                 </div>
                 <Footer/>
