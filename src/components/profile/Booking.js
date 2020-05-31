@@ -245,10 +245,10 @@ class Booking extends Component {
             })
                 .then(res => {
                     console.log(res.data);
-                    console.log("NIC uploaded successfully.");
+                    console.log("Document uploaded successfully.");
                 }).catch(function(error){
                     console.log("Error : ",error);
-                    console.log("NIC Upload Failed");
+                    console.log("Document Upload Failed");
             })
         }
 
@@ -390,7 +390,7 @@ class Booking extends Component {
                                 <legend><span class="number">1</span> Reservation Details </legend>
                                 <div className="row-info">
                                     <div className="row">
-                                        <label for="pickupDate">Date</label>
+                                        <label>Pick-up and Drop-off Dates</label>
                                         <RangeDatePicker locale="ko" onChange={this.onDateChange}/>
                                     </div>
                                 </div>
@@ -420,7 +420,6 @@ class Booking extends Component {
                                         <p>{this.state.description}</p>
                                     </div>
                                     <div class="card-action">
-                                        <button>Change Vehicle</button>
                                     </div>
                                 </div> 
 
@@ -460,7 +459,7 @@ class Booking extends Component {
                                 <div className="row-info">
                                     <div className="row">
                                         <label for="age">Age</label>
-                                        <input id="firstName" name="first_name" value={this.state.age} type="text" class="validate" onChange={this.handleChange}/>
+                                        <input id="age" name="age" value={this.state.age || ''} type="text" class="validate" onChange={this.handleChange}/>
                                     </div>
                                     <div className="row">
                                         <label for="phoneNumber">Phone Number</label>

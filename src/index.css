@@ -770,19 +770,23 @@ margin-top: 36px;
   }
   .App .profile-details{
 	font-family: 'Nunito', sans-serif;
-	background:linear-gradient(to bottom left, #212121 40%, var(--mainDarkBlue) 100%);
+	background:#f4f7f8;
   }
   .App .profile-details form {
 	max-width: 500px;
 	margin: 10px auto;
 	padding: 10px 20px;
-	background: #f4f7f8;
+	background: linear-gradient(to bottom left, #212121 40%, var(--mainDarkBlue) 100%); 
 	border-radius: 8px;
+  }
+  #passWordForm{
+	  background: white;
   }
   .App .profile-details h1 {
 	margin: 0 0 30px 0;
 	text-align: center;
 	font-size: 36px;
+	color: var(--mainGreyWhite);
   }
   .App .profile-details input[type="text"],
   .App .profile-details input[type="password"],
@@ -838,25 +842,24 @@ margin-top: 36px;
 	position: relative;
 	display: block;
 	padding: 19px 39px 18px 39px;
-	color: #FFF;
+	color: var(--mainDarkBlue);
 	margin: 0 auto;
-	background: linear-gradient(to bottom left, #212121 40%, var(--mainDarkBlue) 100%);
+	background: #fff;
 	font-size: 18px;
 	text-align: center;
 	font-style: normal;
-	width: 100%;
+	width: 500px;
 	border: 1px solid var(--mainDarkBlue);
 	border-width: 1px 1px 3px;
 	margin-bottom: 10px;
 	transition: .4s;
   }
   .App .profile-details .update-btn:hover {
-	color: #212121;
 	width: 70%;
 	border-radius: 30px;
-	background: transparent;
+	background: linear-gradient(to bottom left, white 40%, var(--mainDarkBlue) 100%); 
 	border-width: 2px 2px 3px;
-	border-color: #212121;
+	border-color: black;
 	cursor: pointer;
   }
   .App .profile-details .field-sets{
@@ -872,6 +875,7 @@ margin-top: 36px;
   .App .profile-details legend {
 	font-size: 1.4em;
 	margin-bottom: 10px;
+	color: var(--mainGreyWhite);
   }
   .App .profile-details label {
 	display: block;
@@ -882,8 +886,8 @@ margin-top: 36px;
 	display: inline;
   }
   .App .profile-details .number {
-	background: linear-gradient(to bottom left, #212121 40%, var(--mainDarkBlue) 100%);
-	color: #fff;
+	background: white;
+	color: var(--mainDarkBlue);
 	height: 30px;
 	width: 30px;
 	display: inline-block;
@@ -891,6 +895,7 @@ margin-top: 36px;
 	margin-right: 4px;
 	line-height: 30px;
 	text-align: center;
+	text-decoration: double;
 	text-shadow: 0 1px 0 rgba(255,255,255,0.2);
 	border-radius: 8px 5px 8px 20px;
   }

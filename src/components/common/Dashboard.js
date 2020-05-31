@@ -2,20 +2,36 @@ import React, { Component } from 'react';
 import M from "materialize-css";
 import Navbar from '../layout/Navbar';
 import Footer from '../layout/Footer';
+import {Redirect} from 'react-router-dom';
 
 class Dashboard extends Component {
+    constructor(props){
+        super(props);
+        this.state={
+            redirectToVehicles:false
+        }
+        this.startBooking = this.startBooking.bind(this);
+    }
+    
     componentDidMount(){
         const parallax=document.querySelectorAll('.parallax');
         M.Parallax.init(parallax,{}); 
+    }
 
-        const datepicker=document.querySelectorAll('.datepicker');
-        M.Datepicker.init(datepicker,{});
-        
+    startBooking(){
+        this.setState({
+            redirectToVehicles:true
+        })
     }
 
     render() {
         return (
             <div>
+                {
+                    this.state.redirectToVehicles?(
+                        <Redirect to="/vehicles"/>
+                    ):("")
+                }
                 <Navbar/>
                 <div className="dashboard">
                     <div class="parallax-container">
@@ -34,11 +50,8 @@ class Dashboard extends Component {
                         <div class="parallax"><img src="https://images.unsplash.com/photo-1531181616225-f8e50c1ab53e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=750&q=80"/></div>
                     </div>
                     <div className="start-reservation">
-                        <h1>Start a Reservation</h1>
                         <div className="search-form">
-                            <input placeholder="Pick-up Date" type="text" class="datepicker" id="pickup-date"/>
-                            <input placeholder="Drop-off Date" type="text" class="datepicker" id="dropoff-date"/>
-                            <button className="search-btn" type="submit" name="action">Search</button>
+                            <button className="search-btn" type="submit" name="action" onClick={this.startBooking}><h5>Start a Reservation</h5></button>
                         </div>
                     </div>
                     <div class="parallax-container">

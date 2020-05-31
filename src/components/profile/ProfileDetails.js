@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import M from "materialize-css";
 import {Redirect} from 'react-router-dom';
+import { Base64 } from 'js-base64';
 const axios = require("axios");
 
 
@@ -14,11 +15,22 @@ class ProfileDetails extends Component {
             dateOfBirth:'',
             phoneNo:'',
             address:'',
-            redirectToHome:false
+            redirectToHome:false,
+            currentPsw:'',
+            newPsw:'',
+            bookings:[],
+            selectedFile:'',
+            document:''
         }
+        this.updatePassword = this.updatePassword.bind(this);
+        this.updateDocument = this.updateDocument.bind(this);
+        // this.downloadFile = this.downloadFile.bind(this);
     }
 
     componentDidMount(){
+        const modal = document.querySelectorAll('.modal');
+        M.Modal.init(modal, {});
+
         const datepicker=document.querySelectorAll('.datepicker');
         M.Datepicker.init(datepicker,{
             selectMonths: true, 
@@ -65,7 +77,7 @@ class ProfileDetails extends Component {
                 // email:data.email,
                 dateOfBirth:dob,
                 phoneNo:data.phoneNo,
-                address:data.address,
+                address:data.address
             })
         }).catch(function(error){
             console.log(error);
@@ -77,6 +89,40 @@ class ProfileDetails extends Component {
                     redirectToHome:true
                 })
             }
+        })
+
+        axios.post("http://localhost:8080/GetUserBookings",data,{
+            headers:headersInfo
+        }).then(function(res){
+            console.log(res.data);
+            const data = res.data;
+            that.setState({
+                bookings:data
+            })
+        }).catch(function(error){
+            console.log(error);
+            if(error.response.status===401){
+                localStorage.removeItem("token");
+                localStorage.removeItem("email");
+                localStorage.removeItem("name");
+                that.setState({
+                    redirectToHome:true
+                })
+            }
+        })
+
+        axios.get("http://localhost:8080/doc/getDocument/"+localStorage.email,{
+            headers:headersInfo
+        })
+        .then(function(res){
+            const data = res.data;
+            that.setState({
+                document: data
+            })
+            
+            console.log(that.state.document);
+        }).catch(function(error){
+            console.log(error);
         })
     }
 
@@ -116,7 +162,51 @@ class ProfileDetails extends Component {
          })
     }
 
-    handleDelete() {
+    updatePassword = (e) => {
+        e.preventDefault();
+        console.log(this.state);
+
+        if(this.state.currentPsw==='' || this.state.newPsw==='' ){
+            alert("Please fill in the required fields");
+            return;
+        }
+
+        const config = {
+            headers:{
+                Authorization:'Bearer '+ localStorage.token
+            }
+        }
+
+        const formData = new FormData();
+            formData.append('currentPsw', this.state.currentPsw);
+            formData.append('newPsw', this.state.newPsw);
+
+        axios.put("http://localhost:8080/UpdatePassword/"+localStorage.email,formData,config)
+            .then(function(res){
+                console.log("Password updated successfully!");
+                alert("Password updated successfully!");
+                window.location.reload();
+            }).catch(function(error){
+                console.log("Password update un-successful!\nError : ",error.response);
+                alert("Password update un-successful!");
+         })
+    }
+
+    handleDelete = (e) => {
+        e.preventDefault();
+        let pendingBookings = false; 
+        this.state.bookings.map(booking => 
+            {
+                if(booking.bookingState==="Pending"){
+                    pendingBookings=true;
+                }
+            })
+
+        if(pendingBookings){
+            alert("Sorry. You Cannot Delete Your Account While Your Bookings are Pending.");
+            return;
+        }
+            
         const config = {
             headers:{
                 Authorization:'Bearer '+ localStorage.token
@@ -137,6 +227,74 @@ class ProfileDetails extends Component {
           }          
         
     }
+
+    updateDocument= (e) => {
+        e.preventDefault();
+        console.log(this.state);
+
+        const token = 'Bearer '+ localStorage.token;
+        const headersInfo = {
+            Authorization:token
+        }
+
+        if(this.state.document===''){
+            const formData = new FormData();
+            formData.append('file', this.state.selectedFile);
+            formData.append('userId', localStorage.email);
+            axios.post("http://localhost:8080/doc/upload", formData,{
+                headers:headersInfo
+            })
+                .then(res => {
+                    console.log(res.data);
+                    console.log("Document uploaded successfully.");
+                }).catch(function(error){
+                    console.log("Error : ",error);
+                    console.log("Document Upload Failed");
+            })
+        }
+
+        if(this.state.document!=='' && this.state.selectedFile!==''){
+            const formData = new FormData();
+            formData.append('file', this.state.selectedFile);
+            formData.append('userId', localStorage.email);
+            axios.post("http://localhost:8080/doc/updateFile", formData,{
+                headers:headersInfo
+            })
+                .then(res => {
+                    console.log(res.data);
+                    if(res.data.status === 200){
+                        console.log("Document updated successfully.");
+                    }else{
+                        console.log("Document update unsuccessful.");
+                    }
+                }).catch(function(error){
+                    console.log("Error : ",error);
+                    console.log("Document Update Failed");
+            })
+        }
+        
+    }
+
+    onFileChangeHandler = (e) => {
+        e.preventDefault();
+        this.setState({
+            selectedFile: e.target.files[0]
+        });
+        console.log(this.state);
+    };
+
+    // downloadFile() {
+    //     const byteCharacters = Base64.decode(this.state.document);
+    //     const byteNumbers = new Array(byteCharacters.length);
+    //     for (let i = 0; i < byteCharacters.length; i++) {
+    //         byteNumbers[i] = byteCharacters.charCodeAt(i);
+    //     }
+    //     const byteArray = new Uint8Array(byteNumbers);
+    //     const blob = new Blob([byteArray], {type: 'image/jpeg'});
+
+    //     var url = URL.createObjectURL(blob);
+    //     window.open(url);
+    //   }
 
     render() {
         return (
@@ -166,10 +324,55 @@ class ProfileDetails extends Component {
                         </fieldset>
                     </div>
                     <button className="update-btn" onClick={this.handleSubmit}>Update Details</button>
-                    <button className="update-btn" >Update Password</button>
-                    <button className="update-btn" >Update Verification Documents</button>
-                    <button className="update-btn" onClick={this.handleDelete}>Delete Account</button>
                 </form>
+
+                <button className="update-btn" onClick={this.handleDelete}>Delete Account</button>
+
+                {/* <!-- Modal Trigger --> */}
+                <button data-target="modal1"  class="modal-trigger update-btn" >Update Password</button>
+
+                {/* <!-- Modal1 Structure --> */}
+                <div id="modal1" class="modal">
+                    <div class="modal-content">
+                        <h4>Update Password</h4>
+                        <form id="passWordForm">
+                            <label class="active" for="currentPsw">Current Password</label>
+                            <input type="password" placeholder="Password" id="currentPsw" onChange={this.handleChange} />
+                            <label class="active" for="newPsw">New Password</label>
+                            <input type="password" placeholder="Password" id="newPsw" onChange={this.handleChange} />
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button style={{marginRight:30+'px'}} class="modal-close waves-effect waves-green btn-flat teal lighten-3" onClick={this.updatePassword} >Update</button>
+                        <button class="modal-close waves-effect waves-green btn-flat teal lighten-3">Cancel</button>
+                    </div>
+                </div>
+
+                {/* <!-- Modal Trigger --> */}
+                <button data-target="modal2"  class="modal-trigger update-btn" >Update Verification Documents</button>
+
+                {/* <!-- Modal1 Structure --> */}
+                <div id="modal2" class="modal">
+                    <div class="modal-content">
+                        <h4>Update Verification Document</h4>
+                        <form id="passWordForm">
+                            <label for="nic-upload">Upload Scanned Copy of NIC/ Driver's License</label>
+                            <div id="nic-upload" class="file-field input-field">
+                                <div id="upload-btn" class="btn-flat">
+                                    <span>Upload</span>
+                                    <input type="file" className="form-control" name="file" onChange={this.onFileChangeHandler}/>
+                                </div>
+                                <div class="file-path-wrapper">
+                                    <input class="file-path validate" type="text"/>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button style={{marginRight:30+'px'}}  class="modal-close waves-effect waves-green btn-flat teal lighten-3" onClick={this.updateDocument} >Update</button>
+                        <button class="modal-close waves-effect waves-green btn-flat teal lighten-3">Cancel</button>
+                    </div>
+                </div>
                 
             </div>
         );

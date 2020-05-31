@@ -8,8 +8,13 @@ class BookingReceipt extends Component {
     constructor(props){
         super(props);
         if(props.location === undefined){
+            let utilities = this.props.booking.utilities;
+            let selectedUtils = [];
+            for (let i = 0; i < utilities.length; i++) {
+                selectedUtils.push(utilities[i].utilityName);
+            }
             this.state={
-                selectedUtilities:this.props.booking.utilities,
+                selectedUtilities:selectedUtils,
                 pickupDateTime:this.props.booking.pickupDateTime,
                 dropDateTime:this.props.booking.dropDateTime,
                 model:this.props.booking.vehicle.model,
@@ -105,7 +110,25 @@ class BookingReceipt extends Component {
                             </table>
                         </div>
                         <div class="card-action">
-                            <button id="edit-btn">Edit</button>
+                            <button data-target="modal1" id="edit-btn" class="modal-trigger">Edit</button>
+
+                            {/* <!-- Modal1 Structure --> */}
+                            <div id="modal1" class="modal">
+                                <div class="modal-content">
+                                    <h4>Edit Booking</h4>
+                                    <form id="passWordForm">
+                                        <Button>Mark Late Return</Button>
+                                        <Button>Select More Utilities</Button>
+                                        {utilityList}
+                                        <Button>Extend Booking</Button>
+                                        <Button>Cancel Booking</Button>
+                                    </form>
+                                </div>
+                                <div class="modal-footer">
+                                    <button style={{marginRight:30+'px'}}  class="modal-close waves-effect waves-green btn-flat teal lighten-3" onClick={this.updateDocument} >Update</button>
+                                    <button class="modal-close waves-effect waves-green btn-flat teal lighten-3">Cancel</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

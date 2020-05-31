@@ -27,7 +27,7 @@ class BookingsHistory extends Component {
         }).then(function(res){
             console.log(res.data);
             that.setState({
-                bookings:res.data
+                bookings:res.data.reverse()
             })
         }).catch(function(error){
             console.log(error);
