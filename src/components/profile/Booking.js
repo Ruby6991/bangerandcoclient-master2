@@ -219,6 +219,18 @@ class Booking extends Component {
             return;
         }
 
+        console.log();
+        let pickTime=this.convertTo24Hour(this.state.pickupTime).split(":");
+        let dropTime=this.convertTo24Hour(this.state.returnTime).split(":");
+
+        if(pickTime[0]<8 || pickTime[0]>18){
+            alert("Please Pick a Pick-up Time between 8.00 a.m. and 6.00 p.m.");
+            return;
+        }else if(dropTime[0]<8 || dropTime[0]>18){
+            alert("Please Pick a Drop-off Time between 8.00 a.m. and 6.00 p.m.");
+            return;
+        }
+
         const token = 'Bearer '+ localStorage.token;
         const headersInfo = {
             Authorization:token
@@ -252,6 +264,7 @@ class Booking extends Component {
         dropDate.setDate(dropDate.getDate()+1);
         splitDropDate= dropDate.toISOString().split("T");
         var theReturndate = new Date(Date.parse(splitDropDate[0] + ' ' + this.convertTo24Hour(this.state.returnTime)));
+
 
         let numOfDays = Math.round((dropDate-pickDate)/(1000*60*60*24));
 

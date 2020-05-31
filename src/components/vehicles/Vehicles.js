@@ -21,18 +21,9 @@ class Vehicles extends Component {
         M.Carousel.init(carousel,{});
 
         const that = this;
-        console.log(localStorage);
-        const token = 'Bearer '+ localStorage.token;
-        const headersInfo = {
-            Authorization:token
-        }
-        const data = {
-            email:localStorage.email
-        }
-        console.log(headersInfo);
-        axios.post("http://localhost:8080/GetVehicleList",data,{
-            headers:headersInfo
-        }).then(function(res){
+
+        axios.post("http://localhost:8080/GetVehicleList"
+        ).then(function(res){
             console.log(res.data);
             that.setState({
                 vehicles:res.data

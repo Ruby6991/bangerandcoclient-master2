@@ -22,13 +22,9 @@ class VehicleDetails extends Component {
 
     componentDidMount() {
         const that = this;
-        const config = {
-            headers:{
-                Authorization:'Bearer '+ localStorage.token
-            }
-        }
-        console.log(this.state);
-        axios.get("http://localhost:8080/GetVehicle/"+ this.state.id, config)
+
+        console.log(localStorage);
+        axios.get("http://localhost:8080/GetVehicle/"+ this.state.id)
         .then(function(res){
                 console.log(res.data)
                 that.setState({
@@ -47,9 +43,15 @@ class VehicleDetails extends Component {
     }
 
     createBooking(){
-        this.setState({
-            startBooking:true
-        })
+        if(localStorage.getItem("token")!==null){
+            this.setState({
+                startBooking:true
+            })
+        }else{
+            alert("Please Login or Register to Start A Reservation.");
+            return; 
+        }
+        
     }
 
     render() {
