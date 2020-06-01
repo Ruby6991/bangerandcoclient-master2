@@ -25,7 +25,8 @@ class BookingReceipt extends Component {
                 isHistory:true,
                 bookingID:this.props.booking.id,
                 status:this.props.booking.bookingState,
-                isEdit:false
+                isEdit:false,
+
             }
         }else{
             this.state={
@@ -155,7 +156,12 @@ class BookingReceipt extends Component {
                             </table>
                         </div>
                         <div class="card-action">
+                        {
+                        this.state.isHistory && !(this.state.status.localeCompare("DroppedOff")===0 || this.state.status.localeCompare("Cancelled")===0)?(
                             <button id="edit-btn" onClick={this.handleEdit}>Edit</button>
+                        ):(
+                            "")
+                        }
                         </div>
                     </div>
                 </div>

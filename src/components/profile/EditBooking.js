@@ -26,6 +26,7 @@ class EditBooking extends Component {
         }
         this.calculateCost = this.calculateCost.bind(this);
         this.handleLateReturn = this.handleLateReturn.bind(this);
+        this.handleExtendBooking = this.handleExtendBooking.bind(this);
         this.addNewUtils = this.addNewUtils.bind(this);
     }
     
@@ -168,6 +169,55 @@ class EditBooking extends Component {
 
     }
 
+    handleExtendBooking= (e) => {
+        e.preventDefault();
+
+        // if(this.state.lateState){
+        //     alert("This Booking has Already Been Marked as A Late Return.");
+        //     return;
+        // }
+
+        // const that = this;
+        // const token = 'Bearer '+ localStorage.token;
+        // const headersInfo = {
+        //     Authorization:token
+        // }
+        // const userData = {
+        //     email:localStorage.email
+        // }
+        // axios.post("http://localhost:8080/GetUser",userData,{
+        //     headers:headersInfo
+        // }).then(function(res){
+        //     console.log(res.data);
+        //     let customerState = res.data.customerState;
+        //     if(customerState.localeCompare("Returning")===0){
+        //         that.setState({
+        //             isUserReturning:true,
+        //             lateState:true}, () => {       
+        //                 const bookingData = {
+        //                     lateState:true
+        //                 }             
+                           
+        //                 axios.put("http://localhost:8080/updateLateReturn/"+that.state.bookingId, bookingData, {
+        //                     headers:headersInfo
+        //                 })
+        //                     .then(function(res){
+        //                         console.log("Late Return Confirmed!");
+        //                         alert("Late Return Confirmed! You can Return the Vehicle After 6.00 p.m. on the Return Date");
+        //                     }).catch(function(error){
+        //                         console.log("Late Return Request un-successful!\nError : ",error.response);
+        //                         alert("Late Return Request un-successful!");
+        //                 })
+        //             })
+        //     }else{
+        //         alert("Sorry. Only Returning Customers Can Request for Late Returns");
+        //     }
+        // }).catch(function(error){
+        //     console.log(error);
+        // })
+
+    }
+
     addNewUtils = (e) => {
         e.preventDefault();
 
@@ -243,7 +293,7 @@ class EditBooking extends Component {
 
                                 <div class="col s3">
                                     <button onClick={this.handleLateReturn}>Mark Late Return</button>
-                                    <button >Extend Booking</button>
+                                    <button onClick={this.handleExtendBooking}>Extend Booking</button>
                                     <button >Cancel Booking</button>
                                 </div>
                                 <div class="col s9">

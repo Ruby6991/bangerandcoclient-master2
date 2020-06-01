@@ -13,7 +13,7 @@ class VehicleDetails extends Component {
             model:'',
             rates:'',
             fuelType:'',
-            avaialability:'',
+            availability:'',
             description:'',
             vehicle:''
         }
@@ -44,9 +44,14 @@ class VehicleDetails extends Component {
 
     createBooking(){
         if(localStorage.getItem("token")!==null){
-            this.setState({
-                startBooking:true
-            })
+            if(this.state.availability){
+                this.setState({
+                    startBooking:true
+                })
+            }else{
+                alert("Sorry. This Vehicle Isn't Available At the Moment");
+                return; 
+            }
         }else{
             alert("Please Login or Register to Start A Reservation.");
             return; 

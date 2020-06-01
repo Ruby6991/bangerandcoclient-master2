@@ -390,7 +390,16 @@ class Booking extends Component {
                                 <div className="row-info">
                                     <div className="row">
                                         <label>Pick-up and Drop-off Dates</label>
-                                        <RangeDatePicker locale="ko" onChange={this.onDateChange}/>
+                                        <RangeDatePicker 
+                                        locale="ko" 
+                                        disableDay={
+                                            [
+                                                new Date(2020, 6, 12),
+                                                new Date(2020, 6, 2)
+                                            ]
+                                        } 
+                                        onChange={this.onDateChange}
+                                        />
                                     </div>
                                 </div>
                                 <div className="row-info">
