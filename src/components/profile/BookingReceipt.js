@@ -2,6 +2,9 @@ import React, { Component } from 'react'
 import Moment from 'react-moment';
 import Navbar from '../layout/Navbar'
 import Footer from '../layout/Footer'
+import M from "materialize-css"
+import { Redirect } from "react-router-dom";
+const axios = require("axios")
 
 class BookingReceipt extends Component {
 
@@ -21,7 +24,8 @@ class BookingReceipt extends Component {
                 costs:this.props.booking.totalAmount,
                 isHistory:true,
                 bookingID:this.props.booking.id,
-                status:this.props.booking.bookingState
+                status:this.props.booking.bookingState,
+                isEdit:false
             }
         }else{
             this.state={
@@ -35,12 +39,53 @@ class BookingReceipt extends Component {
                 status:"pending"
             }
         }
-        
+        this.handleEdit = this.handleEdit.bind(this);
+    }
+
+    componentDidMount(){
+        const modal = document.querySelectorAll('.modal');
+        M.Modal.init(modal, {});
+
+        const that = this;
+        const config = {
+            headers:{
+                Authorization:'Bearer '+ localStorage.token
+            }
+        }
+
+        const data = {
+            email:localStorage.email
+        }
+
+        axios.post("http://localhost:8080/GetUtilityList",data,config)
+        .then(function(res){
+            console.log(res.data);
+            that.setState({
+                utilities:res.data
+            })
+        }).catch(function(error){
+            console.log(error.response);
+        })
+    }
+
+    handleEdit(){
+        this.setState({
+            isEdit:true
+        })
     }
 
     render(){
         return (
             <div>
+                {
+                   this.state.isEdit?(
+                    <Redirect to={{
+                            state: {bookingId:this.state.bookingID,
+                                    model:this.state.model},
+                            pathname: '/editBooking'
+                          }}/>
+                   ):("")
+                }
                 {
                 this.state.isHistory?(
                     ""
@@ -110,25 +155,7 @@ class BookingReceipt extends Component {
                             </table>
                         </div>
                         <div class="card-action">
-                            <button data-target="modal1" id="edit-btn" class="modal-trigger">Edit</button>
-
-                            {/* <!-- Modal1 Structure --> */}
-                            <div id="modal1" class="modal">
-                                <div class="modal-content">
-                                    <h4>Edit Booking</h4>
-                                    <form id="passWordForm">
-                                        <Button>Mark Late Return</Button>
-                                        <Button>Select More Utilities</Button>
-                                        {utilityList}
-                                        <Button>Extend Booking</Button>
-                                        <Button>Cancel Booking</Button>
-                                    </form>
-                                </div>
-                                <div class="modal-footer">
-                                    <button style={{marginRight:30+'px'}}  class="modal-close waves-effect waves-green btn-flat teal lighten-3" onClick={this.updateDocument} >Update</button>
-                                    <button class="modal-close waves-effect waves-green btn-flat teal lighten-3">Cancel</button>
-                                </div>
-                            </div>
+                            <button id="edit-btn" onClick={this.handleEdit}>Edit</button>
                         </div>
                     </div>
                 </div>

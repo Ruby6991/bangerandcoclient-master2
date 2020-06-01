@@ -120,7 +120,7 @@ class ProfileDetails extends Component {
                 document: data
             })
             
-            console.log(that.state.document);
+            // console.log(that.state.document);
         }).catch(function(error){
             console.log(error);
         })

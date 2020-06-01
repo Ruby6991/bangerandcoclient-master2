@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 import M from "materialize-css"
-import BookingReceipt from './BookingReceipt'
 import Navbar from '../layout/Navbar'
 import Footer from '../layout/Footer'
 import { RangeDatePicker } from '@y0c/react-datepicker';

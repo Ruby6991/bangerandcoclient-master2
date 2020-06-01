@@ -8,6 +8,7 @@ import Account from './components/profile/Profile'
 import VehicleDetails from './components/vehicles/VehicleDetails'
 import Booking from './components/profile/Booking';
 import BookingReceipt from './components/profile/BookingReceipt'
+import EditBooking from './components/profile/EditBooking'
 
 class App extends Component {
   render(){
@@ -25,6 +26,7 @@ class App extends Component {
             <Route path='/vehicle/:id' component={VehicleDetails}/>
             <Route path='/booking' component={Booking}/>
             <Route path='/bookingReceipt' component={BookingReceipt}/>
+            <Route path='/editBooking' component={EditBooking}/>
           </Switch>
         </div>
       </BrowserRouter> 
