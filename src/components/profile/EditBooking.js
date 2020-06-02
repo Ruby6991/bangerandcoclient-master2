@@ -11,6 +11,7 @@ class EditBooking extends Component {
         super(props);
         this.state={
             bookingId:this.props.location.state.bookingId,
+            vehicleId:'',
             duration:'',
             selectedUtilities:[],
             newlySelectedUtils:[],
@@ -22,7 +23,9 @@ class EditBooking extends Component {
             utilities:[],
             isUpdateComplete:false,
             isUserReturning:false,
-            lateState:false
+            lateState:false,
+            isExtended:false,
+            vehicleBookings:[]
         }
         this.calculateCost = this.calculateCost.bind(this);
         this.handleLateReturn = this.handleLateReturn.bind(this);
@@ -68,7 +71,8 @@ class EditBooking extends Component {
                 dropDateTime:res.data.dropDateTime,
                 costs:res.data.totalAmount,
                 status:res.data.bookingState,
-                lateState:res.data.lateState
+                lateState:res.data.lateState,
+                vehicleId:res.data.vehicle.id
             })
         }).catch(function(error){
             console.log(error);
@@ -172,49 +176,60 @@ class EditBooking extends Component {
     handleExtendBooking= (e) => {
         e.preventDefault();
 
-        // if(this.state.lateState){
-        //     alert("This Booking has Already Been Marked as A Late Return.");
+        // if(this.state.isExtended){
+        //     alert("This Booking has Already Been Extended.");
         //     return;
         // }
 
-        // const that = this;
-        // const token = 'Bearer '+ localStorage.token;
-        // const headersInfo = {
-        //     Authorization:token
-        // }
-        // const userData = {
-        //     email:localStorage.email
-        // }
-        // axios.post("http://localhost:8080/GetUser",userData,{
-        //     headers:headersInfo
-        // }).then(function(res){
-        //     console.log(res.data);
-        //     let customerState = res.data.customerState;
-        //     if(customerState.localeCompare("Returning")===0){
-        //         that.setState({
-        //             isUserReturning:true,
-        //             lateState:true}, () => {       
-        //                 const bookingData = {
-        //                     lateState:true
-        //                 }             
-                           
-        //                 axios.put("http://localhost:8080/updateLateReturn/"+that.state.bookingId, bookingData, {
-        //                     headers:headersInfo
-        //                 })
-        //                     .then(function(res){
-        //                         console.log("Late Return Confirmed!");
-        //                         alert("Late Return Confirmed! You can Return the Vehicle After 6.00 p.m. on the Return Date");
-        //                     }).catch(function(error){
-        //                         console.log("Late Return Request un-successful!\nError : ",error.response);
-        //                         alert("Late Return Request un-successful!");
-        //                 })
-        //             })
-        //     }else{
-        //         alert("Sorry. Only Returning Customers Can Request for Late Returns");
-        //     }
-        // }).catch(function(error){
-        //     console.log(error);
-        // })
+        const that = this;
+        const config = {
+            headers:{
+                Authorization:'Bearer '+ localStorage.token
+            }
+        }
+
+        axios.get("http://localhost:8080/GetVehicleBookings/"+ this.state.vehicleId, config)
+        .then(function(res){
+                console.log(res.data)
+                that.setState({
+                    vehicleBookings:res.data}, () => {
+                        let canExtend = true;
+                        const bookings = that.state.vehicleBookings;
+                        var nextDate = new Date(that.state.dropDateTime.split("T")[0]);
+                        nextDate.setDate(nextDate.getDate() + 1);
+                        for(let a=0; a<bookings.length;a++){
+                            let startDate=bookings[a].pickupDateTime.split("T");
+                            let includeStart = new Date(startDate[0]);
+                            includeStart.setDate(includeStart.getDate());
+                            console.log(includeStart.getTime()===nextDate.getTime());
+                            if(includeStart.getTime()===nextDate.getTime()){
+                                canExtend=false;
+                            }
+                        }
+
+                        if(canExtend){
+                            that.setState({
+                                isExtended:true}, () => {
+                                    const bookingData = {
+                                        extendedState:true
+                                    }
+                                    axios.put("http://localhost:8080/extendBooking/"+that.state.bookingId, bookingData, config)
+                                            .then(function(res){
+                                                console.log("Extension Confirmed!");
+                                                alert("Extension Confirmed! Please return the vehicle on or before 4.00 p.m. Today.");
+                                            }).catch(function(error){
+                                                console.log("Extension Request un-successful!\nError : ",error.response);
+                                                alert("Extension Request un-successful!");
+                                        })
+                                })
+                        }else{
+                            alert("Sorry. The extension request was declined due to a Booking Made for Tomorrow");
+                        }
+                    })
+                console.log("Vehicle Bookings Received!");
+            }).catch(function(error){
+                console.log("Vehicle Bookings error ",error.response);
+            }) 
 
     }
 
@@ -292,8 +307,19 @@ class EditBooking extends Component {
                             <div class="row">
 
                                 <div class="col s3">
-                                    <button onClick={this.handleLateReturn}>Mark Late Return</button>
-                                    <button onClick={this.handleExtendBooking}>Extend Booking</button>
+                                {
+                                this.state.isExtended?(
+                                    ""
+                                ):(
+                                    <button onClick={this.handleExtendBooking}>Extend Booking</button>)
+                                }
+                                {
+                                this.state.lateState?(
+                                    ""
+                                ):(
+                                    <button onClick={this.handleLateReturn}>Mark Late Return</button>)
+                                }
+                                    
                                     <button >Cancel Booking</button>
                                 </div>
                                 <div class="col s9">

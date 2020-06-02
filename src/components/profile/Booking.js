@@ -2,11 +2,11 @@ import React, { Component } from 'react'
 import M from "materialize-css"
 import Navbar from '../layout/Navbar'
 import Footer from '../layout/Footer'
-import { RangeDatePicker } from '@y0c/react-datepicker';
-import '@y0c/react-datepicker/assets/styles/calendar.scss';
-import 'moment/locale/ko';
+import Calendar from 'react-calendar'
+import 'react-calendar/dist/Calendar.css';
 import TimeKeeper from 'react-timekeeper';
 import { Redirect } from "react-router-dom";
+import { isWithinInterval } from "date-fns";
 const axios = require("axios")
 
 class Booking extends Component {
@@ -33,6 +33,7 @@ class Booking extends Component {
             model:'',
             rates:'',
             description:'',
+            vehicleBookings:[],
             selectedFile:'',
             costs:[],
             document:'',
@@ -41,6 +42,7 @@ class Booking extends Component {
         this.toTimestamp = this.toTimestamp.bind(this);
         this.onPickTimeChange = this.onPickTimeChange.bind(this);
         this.onDropTimeChange = this.onDropTimeChange.bind(this);
+        this.previouslyBooked = this.previouslyBooked.bind(this);
         this.calculateCost = this.calculateCost.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
     }
@@ -73,6 +75,17 @@ class Booking extends Component {
                 console.log("Vehicle Data Received!");
             }).catch(function(error){
                 console.log("Vehicle data error ",error.response);
+            }) 
+
+        axios.get("http://localhost:8080/GetVehicleBookings/"+ this.state.vehicleId, config)
+        .then(function(res){
+                console.log(res.data)
+                that.setState({
+                    vehicleBookings:res.data
+                })
+                console.log("Vehicle Bookings Received!");
+            }).catch(function(error){
+                console.log("Vehicle Bookings error ",error.response);
             }) 
 
         const data = {
@@ -138,11 +151,41 @@ class Booking extends Component {
         })
     }
 
-    onDateChange = (startDate, endDate) => {
+    onDateChange = (value, event) => {
+        let dates = value;
         this.setState({
-            pickupDate: startDate,
-            returnDate: endDate
+            pickupDate: dates[0],
+            returnDate: dates[1]
+        }, () => {
+            console.log(this.state);
         })
+    }
+
+    addMonths(date, months) {
+        var d = date.getDate();
+        date.setMonth(date.getMonth() + +months);
+        if (date.getDate() != d) {
+          date.setDate(0);
+        }
+        return date;
+    }
+
+    previouslyBooked({date, view}){
+        let bookedDates = [];
+        const bookings = this.state.vehicleBookings;
+        for(let a=0; a<bookings.length;a++){
+            let startDate=bookings[a].pickupDateTime.split("T");
+            let includeStart = new Date(startDate[0]);
+            includeStart.setDate(includeStart.getDate()-1);
+            let endDate=bookings[a].dropDateTime.split("T");
+            bookedDates.push(isWithinInterval(date, { start: includeStart, end: new Date(endDate[0]) }));
+        }
+        for(let b=0; b<bookedDates.length; b++){
+            if(bookedDates[b]){
+                return bookedDates[b];
+            }
+        }
+        
     }
 
     onPickTimeChange = (time) => {
@@ -260,7 +303,7 @@ class Booking extends Component {
 
         let splitDropDate=this.state.returnDate.toISOString().split("T");
         let dropDate = new Date(splitDropDate[0]);
-        dropDate.setDate(dropDate.getDate()+1);
+        dropDate.setDate(dropDate.getDate());
         splitDropDate= dropDate.toISOString().split("T");
         var theReturndate = new Date(Date.parse(splitDropDate[0] + ' ' + this.convertTo24Hour(this.state.returnTime)));
 
@@ -390,16 +433,14 @@ class Booking extends Component {
                                 <div className="row-info">
                                     <div className="row">
                                         <label>Pick-up and Drop-off Dates</label>
-                                        <RangeDatePicker 
-                                        locale="ko" 
-                                        disableDay={
-                                            [
-                                                new Date(2020, 6, 12),
-                                                new Date(2020, 6, 2)
-                                            ]
-                                        } 
+                                        <Calendar
+                                        selectRange = {true}
                                         onChange={this.onDateChange}
-                                        />
+                                        returnValue = "range"
+                                        maxDate = {this.addMonths(new Date(),1)}
+                                        minDate = {new Date()}
+                                        tileDisabled = {this.previouslyBooked}
+                                         />
                                     </div>
                                 </div>
                                 <div className="row-info">
