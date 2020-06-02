@@ -174,11 +174,13 @@ class Booking extends Component {
         let bookedDates = [];
         const bookings = this.state.vehicleBookings;
         for(let a=0; a<bookings.length;a++){
-            let startDate=bookings[a].pickupDateTime.split("T");
-            let includeStart = new Date(startDate[0]);
-            includeStart.setDate(includeStart.getDate()-1);
-            let endDate=bookings[a].dropDateTime.split("T");
-            bookedDates.push(isWithinInterval(date, { start: includeStart, end: new Date(endDate[0]) }));
+            if(bookings[a].bookingState==="Pending"){
+                let startDate=bookings[a].pickupDateTime.split("T");
+                let includeStart = new Date(startDate[0]);
+                includeStart.setDate(includeStart.getDate()-1);
+                let endDate=bookings[a].dropDateTime.split("T");
+                bookedDates.push(isWithinInterval(date, { start: includeStart, end: new Date(endDate[0]) }));
+            }
         }
         for(let b=0; b<bookedDates.length; b++){
             if(bookedDates[b]){

@@ -25,11 +25,13 @@ class EditBooking extends Component {
             isUserReturning:false,
             lateState:false,
             isExtended:false,
+            isCancelled:false,
             vehicleBookings:[]
         }
         this.calculateCost = this.calculateCost.bind(this);
         this.handleLateReturn = this.handleLateReturn.bind(this);
         this.handleExtendBooking = this.handleExtendBooking.bind(this);
+        this.handleCancellation = this.handleCancellation.bind(this);
         this.addNewUtils = this.addNewUtils.bind(this);
     }
     
@@ -173,13 +175,8 @@ class EditBooking extends Component {
 
     }
 
-    handleExtendBooking= (e) => {
+    handleExtendBooking = (e) => {
         e.preventDefault();
-
-        // if(this.state.isExtended){
-        //     alert("This Booking has Already Been Extended.");
-        //     return;
-        // }
 
         const that = this;
         const config = {
@@ -231,6 +228,45 @@ class EditBooking extends Component {
                 console.log("Vehicle Bookings error ",error.response);
             }) 
 
+    }
+
+    handleCancellation = (e) => {
+        e.preventDefault();
+
+        const that = this;
+        const config = {
+            headers:{
+                Authorization:'Bearer '+ localStorage.token
+            }
+        }
+        
+        let cancelDate = new Date();
+        cancelDate.setDate(cancelDate.getDate());
+
+        let pickUpDate=this.state.pickupDateTime.split("T");
+        let pickDate = new Date(pickUpDate[0]);
+        pickDate.setDate(pickDate.getDate()+1);
+
+        let numOfDays = Math.round((pickDate-cancelDate)/(1000*60*60*24));
+
+        if(numOfDays>2){
+            that.setState({
+                isCancelled:true
+            })
+            const bookingData = {
+                bookingState:'Cancelled'
+            }
+            axios.put("http://localhost:8080/updateBookingState/"+that.state.bookingId, bookingData, config)
+                    .then(function(res){
+                        console.log("Booking Cancelled!");
+                        alert("Booking Cancelled.");
+                    }).catch(function(error){
+                        console.log("Cancellation Request un-successful!\nError : ",error.response);
+                        alert("Cancellation un-successful!");
+                })
+        }else{
+            alert("Sorry. You Can Only Cancel a Reservation 3 or More Days Prior to the Reservation Pick-up Date");
+        }
     }
 
     addNewUtils = (e) => {
@@ -296,7 +332,7 @@ class EditBooking extends Component {
             <div>
                 <Navbar/>
                 {
-                   this.state.isUpdateComplete?(
+                   this.state.isUpdateComplete || this.state.isCancelled?(
                        <Redirect to={'/account'}/>
                    ):("")
                 }
@@ -320,7 +356,7 @@ class EditBooking extends Component {
                                     <button onClick={this.handleLateReturn}>Mark Late Return</button>)
                                 }
                                     
-                                    <button >Cancel Booking</button>
+                                    <button onClick={this.handleCancellation}>Cancel Booking</button>
                                 </div>
                                 <div class="col s9">
                                     <table >
