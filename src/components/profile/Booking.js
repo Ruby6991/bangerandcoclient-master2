@@ -16,7 +16,7 @@ class Booking extends Component {
             vehicleId:this.props.location.state.id,
             firstName:'',
             lastName:'',
-            nic:'',
+            license:'',
             age:'',
             phoneNo:'',
             selectedUtilities:[],
@@ -112,7 +112,7 @@ class Booking extends Component {
                     lastName:data.lastName,
                     age:age,
                     phoneNo:data.phoneNo,
-                    nic:data.nic
+                    license:data.driversLicense
                 })
             }).catch(function(error){
                 console.log(error);
@@ -128,9 +128,12 @@ class Booking extends Component {
             console.log(error.response);
         })
 
-        axios.get("http://localhost:8080/doc/getDocument/"+localStorage.email,config)
+        const docType = {
+            docType:'Drivers License'
+        }
+
+        axios.post("http://localhost:8080/doc/getDocumentByType/"+localStorage.email, docType, config)
         .then(function(res){
-            // console.log(res.data);
             that.setState({
                 document:res.data
             })
@@ -284,6 +287,7 @@ class Booking extends Component {
             const formData = new FormData();
             formData.append('file', this.state.selectedFile);
             formData.append('userId', localStorage.email);
+            formData.append('fileType', 'Drivers License');
             axios.post("http://localhost:8080/doc/upload", formData,{
                 headers:headersInfo
             })
@@ -381,23 +385,23 @@ class Booking extends Component {
                                 alert("Booking creation un-successful!");
                         })
                     }else{
-                        alert("Please upload a scanned copy of your NIC to create a Booking");
+                        alert("Please upload a scanned copy of your Drivers License to create a Booking");
                     } 
                 })       
           }); 
 
 
         const docInfo = {
-            nic:this.state.nic
+            driversLicense:this.state.license
         }
 
-        axios.put("http://localhost:8080/UpdateUserNIC/"+localStorage.email,docInfo,{
+        axios.put("http://localhost:8080/UpdateUserLicense/"+localStorage.email,docInfo,{
             headers:headersInfo
         })
             .then(function(res){
-                console.log("NIC updated successfully!");
+                console.log("Drivers License updated successfully!");
             }).catch(function(error){
-                console.log("NIC update un-successful!\nError : ",error.response);
+                console.log("Drivers License update un-successful!\nError : ",error.response);
          })
 
     }
@@ -517,13 +521,13 @@ class Booking extends Component {
                                         <input id="phoneNumber" name="phone_number" type="tel" value={this.state.phoneNo} class="validate"  onChange={this.handleChange}/>
                                     </div>
                                 </div>
-                                <label for="nicNumber">NIC</label>
-                                <input type="text" id="nic" name="nic_number" value={this.state.nic} placeholder="NIC " onChange={this.handleChange}/>
+                                <label for="license">License Number</label>
+                                <input type="text" id="license" name="license_number" value={this.state.license} placeholder="License Number " onChange={this.handleChange}/>
                                 
                                 {
                                     this.state.document===''?(
                                         <div>
-                                            <label for="nic-upload">Upload Scanned Copy of NIC/ Driver's License</label>
+                                            <label for="nic-upload">Upload Scanned Copy of Driver's License</label>
                                             <div id="nic-upload" class="file-field input-field">
                                                 <div id="upload-btn" class="btn-flat">
                                                     <span>Upload</span>

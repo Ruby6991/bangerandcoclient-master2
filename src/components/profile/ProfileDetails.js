@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import M from "materialize-css";
 import {Redirect} from 'react-router-dom';
-import { Base64 } from 'js-base64';
 const axios = require("axios");
 
 
@@ -11,7 +10,6 @@ class ProfileDetails extends Component {
         this.state={
             firstName:'',
             lastName:'',
-            // email:'',
             dateOfBirth:'',
             phoneNo:'',
             address:'',
@@ -24,7 +22,6 @@ class ProfileDetails extends Component {
         }
         this.updatePassword = this.updatePassword.bind(this);
         this.updateDocument = this.updateDocument.bind(this);
-        // this.downloadFile = this.downloadFile.bind(this);
     }
 
     componentDidMount(){
@@ -283,19 +280,6 @@ class ProfileDetails extends Component {
         console.log(this.state);
     };
 
-    // downloadFile() {
-    //     const byteCharacters = Base64.decode(this.state.document);
-    //     const byteNumbers = new Array(byteCharacters.length);
-    //     for (let i = 0; i < byteCharacters.length; i++) {
-    //         byteNumbers[i] = byteCharacters.charCodeAt(i);
-    //     }
-    //     const byteArray = new Uint8Array(byteNumbers);
-    //     const blob = new Blob([byteArray], {type: 'image/jpeg'});
-
-    //     var url = URL.createObjectURL(blob);
-    //     window.open(url);
-    //   }
-
     render() {
         return (
             <div className="profile-details">
@@ -351,12 +335,12 @@ class ProfileDetails extends Component {
                 {/* <!-- Modal Trigger --> */}
                 <button data-target="modal2"  class="modal-trigger update-btn" >Update Verification Documents</button>
 
-                {/* <!-- Modal1 Structure --> */}
+                {/* <!-- Modal2 Structure --> */}
                 <div id="modal2" class="modal">
                     <div class="modal-content">
                         <h4>Update Verification Document</h4>
                         <form id="passWordForm">
-                            <label for="nic-upload">Upload Scanned Copy of NIC/ Driver's License</label>
+                            <label for="nic-upload">Upload Scanned Copy of Driver's License</label>
                             <div id="nic-upload" class="file-field input-field">
                                 <div id="upload-btn" class="btn-flat">
                                     <span>Upload</span>

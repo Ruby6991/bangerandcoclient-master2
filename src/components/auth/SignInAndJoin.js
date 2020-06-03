@@ -61,10 +61,12 @@ class SignInAndJoin extends Component {
             console.log(localStorage);
         }).catch(function(error){
             const res = error.response;
-            if(res.data.trace.includes("INVALID_CREDENTIALS") && res.status===401){
-                alert("Invalid Email or Password. Please Try Again"); 
-            }else if(res.status === 403){
+            if(res.status === 403){
                 alert("User has been Blacklisted"); 
+                return;
+            }else if(res.data.trace.includes("INVALID_CREDENTIALS") && res.status===401){
+                alert("Invalid Email or Password. Please Try Again");
+                return; 
             }else{
                 alert("Server Error!");
             }
