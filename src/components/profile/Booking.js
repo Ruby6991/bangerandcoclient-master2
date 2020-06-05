@@ -38,13 +38,14 @@ class Booking extends Component {
             costs:[],
             document:'',
             isBookingComplete:false,
-            licenseState:''
+            isBlocked:''
         }
         this.toTimestamp = this.toTimestamp.bind(this);
         this.onPickTimeChange = this.onPickTimeChange.bind(this);
         this.onDropTimeChange = this.onDropTimeChange.bind(this);
         this.previouslyBooked = this.previouslyBooked.bind(this);
         this.calculateCost = this.calculateCost.bind(this);
+        this.signout = this.signout.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
     }
     
@@ -252,10 +253,29 @@ class Booking extends Component {
         }
         return time.replace(/(am|pm)/, '');
     }
-   
+
+    signout(){
+        localStorage.removeItem("token");
+        localStorage.removeItem("email");
+        localStorage.removeItem("name");
+        this.setState({
+            isBlocked:true
+        })
+    }
 
     handleSubmit = (e) => {
         e.preventDefault();
+        const that = this;
+        const token = 'Bearer '+ localStorage.token;
+        const headersInfo = {
+            Authorization:token
+        }
+
+        console.log(that.state.license);
+        if(that.state.license === '' || that.state.license==null){
+            alert("Please Fill in your License Number!");
+            return;
+        }
 
         if(this.state.age<25 && (this.state.category==='Family Vehicles' || this.state.category==='Vans')){
             alert("Sorry. Users under 25 can only book Small Town Cars");
@@ -278,60 +298,6 @@ class Booking extends Component {
             alert("Please Pick a Drop-off Time between 8.00 a.m. and 6.00 p.m.");
             return;
         }
-
-        const token = 'Bearer '+ localStorage.token;
-        const headersInfo = {
-            Authorization:token
-        }
-
-        const that = this;
-        const validity = true;
-        const data = {
-            driversLicense:this.state.license
-        }
-        axios.post("http://localhost:8080/CheckUser",data,{
-            headers:headersInfo
-        })
-        .then(function(res){
-                console.log(res.data);
-                const data = res.data;
-                that.setState({
-                    licenseState:data
-                }, () => {
-                    if(this.state.licenseState!=='Valid'){
-                        validity=false;
-                    }else if(this.state.licenseState==='Suspended'){
-                        alert("Booking Cancelled Due to the License Being Suspended");
-                    }else if(this.state.licenseState==='Stolen'){
-                        alert("Booking Cancelled Due to the License Being Stolen");
-                    }else if(this.state.licenseState==='Lost'){
-                        alert("Booking Cancelled Due to the License Being Lost");
-                    }
-
-                    
-
-                })
-            }).catch(function(error){
-                console.log(error);
-            }) 
-
-        if(this.state.document===''){
-            const formData = new FormData();
-            formData.append('file', this.state.selectedFile);
-            formData.append('userId', localStorage.email);
-            formData.append('fileType', 'Drivers License');
-            axios.post("http://localhost:8080/doc/upload", formData,{
-                headers:headersInfo
-            })
-                .then(res => {
-                    console.log(res.data);
-                    console.log("Document uploaded successfully.");
-                }).catch(function(error){
-                    console.log("Error : ",error);
-                    console.log("Document Upload Failed");
-            })
-        }
-
 
         let splitPickUpDate=this.state.pickupDate.toISOString().split("T");
         let pickDate = new Date(splitPickUpDate[0]);
@@ -370,6 +336,24 @@ class Booking extends Component {
                     costs:this.calculateCost()
                 }, () => {
                     const that = this;
+
+                    if(this.state.document===''){
+                        const formData = new FormData();
+                        formData.append('file', this.state.selectedFile);
+                        formData.append('userId', localStorage.email);
+                        formData.append('fileType', 'Drivers License');
+                        axios.post("http://localhost:8080/doc/upload", formData,{
+                            headers:headersInfo
+                        })
+                            .then(res => {
+                                console.log(res.data);
+                                console.log("Document uploaded successfully.");
+                            }).catch(function(error){
+                                console.log("Error : ",error);
+                                console.log("Document Upload Failed");
+                        })
+                    }
+
                     const userdata = {
                         email:localStorage.email
                     }
@@ -391,7 +375,7 @@ class Booking extends Component {
                         }
                     }
             
-                    const data = {
+                    const bookingData = {
                         user:userdata,
                         vehicle:vehicleData,
                         pickupDateTime: thePickdate,
@@ -400,22 +384,45 @@ class Booking extends Component {
                         totalAmount:this.state.costs[2]
                     }
             
-                    console.log(data);
-            
                     if(this.state.document!=='' || this.state.selectedFile!==''){
-                        axios.put("http://localhost:8080/CreateBooking",data,{
-                        headers:headersInfo
+                        const validityData = {
+                            email:localStorage.email,
+                            driversLicense:that.state.license
+                        }
+                        axios.post("http://localhost:8080/CheckUser",validityData,{
+                            headers:headersInfo
                         })
-                            .then(function(res){
-                                console.log("Booking created successfully!");
-                                alert("Booking created successfully!");
-                                that.setState({
-                                    isBookingComplete:true
-                                })
+                        .then(function(res){
+                                console.log(res.data);
+                                const data = res.data;
+                                if(data==='Suspended'){
+                                    alert("Booking Cancelled Due to the License Being Suspended");
+                                    that.signout();
+                                }else if(data==='Stolen'){
+                                    alert("Booking Cancelled Due to the License Being Stolen");
+                                    that.signout();
+                                }else if(data==='Lost'){
+                                    alert("Booking Cancelled Due to the License Being Lost");
+                                    that.signout();
+                                }else if(data==='Valid'){
+                                    axios.put("http://localhost:8080/CreateBooking",bookingData,{
+                                    headers:headersInfo
+                                    })
+                                        .then(function(res){
+                                            console.log("Booking created successfully!");
+                                            alert("Booking created successfully!");
+                                            that.setState({
+                                                isBookingComplete:true
+                                            })
+                                        }).catch(function(error){
+                                            console.log("Booking creation un-successful!\nError : ",error.response);
+                                            alert("Booking creation un-successful!");
+                                    })
+                                }
+                                
                             }).catch(function(error){
-                                console.log("Booking creation un-successful!\nError : ",error.response);
-                                alert("Booking creation un-successful!");
-                        })
+                                console.log(error);
+                            }) 
                     }else{
                         alert("Please upload a scanned copy of your Drivers License to create a Booking");
                     } 
@@ -449,6 +456,11 @@ class Booking extends Component {
     render() {
         return (
             <div>
+                {
+                    this.state.isBlocked?(
+                        <Redirect to="/"/>
+                    ):("")
+                }
                 <Navbar/>
                 {
                    this.state.isBookingComplete?(
