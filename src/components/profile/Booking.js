@@ -37,7 +37,8 @@ class Booking extends Component {
             selectedFile:'',
             costs:[],
             document:'',
-            isBookingComplete:false
+            isBookingComplete:false,
+            licenseState:''
         }
         this.toTimestamp = this.toTimestamp.bind(this);
         this.onPickTimeChange = this.onPickTimeChange.bind(this);
@@ -282,6 +283,37 @@ class Booking extends Component {
         const headersInfo = {
             Authorization:token
         }
+
+        const that = this;
+        const validity = true;
+        const data = {
+            driversLicense:this.state.license
+        }
+        axios.post("http://localhost:8080/CheckUser",data,{
+            headers:headersInfo
+        })
+        .then(function(res){
+                console.log(res.data);
+                const data = res.data;
+                that.setState({
+                    licenseState:data
+                }, () => {
+                    if(this.state.licenseState!=='Valid'){
+                        validity=false;
+                    }else if(this.state.licenseState==='Suspended'){
+                        alert("Booking Cancelled Due to the License Being Suspended");
+                    }else if(this.state.licenseState==='Stolen'){
+                        alert("Booking Cancelled Due to the License Being Stolen");
+                    }else if(this.state.licenseState==='Lost'){
+                        alert("Booking Cancelled Due to the License Being Lost");
+                    }
+
+                    
+
+                })
+            }).catch(function(error){
+                console.log(error);
+            }) 
 
         if(this.state.document===''){
             const formData = new FormData();
