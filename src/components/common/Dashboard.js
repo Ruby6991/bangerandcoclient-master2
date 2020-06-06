@@ -3,6 +3,7 @@ import M from "materialize-css";
 import Navbar from '../layout/Navbar';
 import Footer from '../layout/Footer';
 import {Redirect} from 'react-router-dom';
+import CompetitorInfo from './CompetitorInfo';
 
 class Dashboard extends Component {
     constructor(props){
@@ -75,6 +76,8 @@ class Dashboard extends Component {
                         <p>We offer a wide range of options from economy to luxury. 
                             The fleet consists of cars, sports utility, and 4WD vehicles and vans. From SUVs to pickup trucks, 
                             wherever you go, we’ve got your ride.</p>
+                            <h1>Comparison Rates</h1>
+                            <CompetitorInfo/>
                     </div>
                     <div class="parallax-container">
                         <div class="parallax"><img src="https://images.unsplash.com/photo-1532931899774-fbd4de0008fb?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1050&q=80"/></div>
