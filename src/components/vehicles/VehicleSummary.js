@@ -32,7 +32,7 @@ class VehicleSummary extends Component {
                     ):("")
                 }
                 <div class="card">
-                    <div class="card_image"><img src={this.state.imgUrl} alt=""/></div>
+                    <div class="card_image"><img id="vehicle-img" src={this.state.imgUrl} alt=""/></div>
                     <div class="card_content">
                         <h2 class="card_title">{this.state.model}</h2>
                             {this.state.category === 'Small Town Cars' ?(

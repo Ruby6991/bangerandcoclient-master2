@@ -27,9 +27,7 @@ class CompetitorInfo extends Component {
             email:localStorage.email
         }
         console.log(headersInfo);
-        axios.post("http://localhost:8080/GetVehicleList",data,{
-            headers:headersInfo
-        }).then(function(res){
+        axios.post("http://localhost:8080/GetVehicleList").then(function(res){
             console.log(res.data);
             that.setState({
                 vehicles:res.data
@@ -39,9 +37,7 @@ class CompetitorInfo extends Component {
         })
 
         
-        axios.get("http://localhost:8080/getCompetitorInfo",{
-            headers:headersInfo
-        })
+        axios.get("http://localhost:8080/getCompetitorInfo")
         .then(function(res){
             const data = res.data;
             that.setState({

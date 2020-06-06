@@ -79,8 +79,8 @@ class VehicleDetails extends Component {
                         </div>
                         <div class="card-content">
                             <div className="details">
-                                <p><strong>Model :</strong>  {this.state.model} </p>
-                                <p><strong> Rates:</strong>  {this.state.rates} Per Day</p>
+                                {/* <p><strong>Model :</strong>  {this.state.model} </p> */}
+                                <p><strong> Rates:</strong>  {this.state.rates}£ Per Day</p>
                                 <p><strong>Fuel Type:</strong> {this.state.fuelType}</p>
                                 <p><strong>Availability :</strong> {this.state.availability?("Available"):("Unavailable")}</p>
                             </div><br/>

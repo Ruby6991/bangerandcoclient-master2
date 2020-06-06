@@ -512,7 +512,7 @@ class Booking extends Component {
                                 <div class="card">
                                     <div class="card-image">
                                         <img src={this.state.imgUrl} alt=""/>
-                                        <span class="card-title">{this.state.model}<br/>{this.state.rates+" Per Day"}</span>
+                                        <span class="card-title">{this.state.model}<br/>{this.state.rates+"£ Per Day"}</span>
                                         
                                     </div>
                                     <div class="card-content">
@@ -531,7 +531,7 @@ class Booking extends Component {
                                                 <tr className="table-row">
                                                     <td><img class="responsive-img" src={utility.utilityImg} alt=""/></td>
                                                     <td>{utility.utilityName}</td>
-                                                    <td>Rs.{utility.utilityRate}/hr</td>
+                                                    <td>{utility.utilityRate}£</td>
                                                     <td>
                                                         <label>
                                                             <input name={utility.utilityName} type="checkbox" onChange={this.handleCheckbox} />
