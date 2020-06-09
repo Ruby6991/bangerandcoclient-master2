@@ -333,12 +333,12 @@ class ProfileDetails extends Component {
                 </div>
 
                 {/* <!-- Modal Trigger --> */}
-                <button data-target="modal2"  class="modal-trigger update-btn" >Update Verification Documents</button>
+                <button data-target="modal2"  class="modal-trigger update-btn" >Update Drivers License</button>
 
                 {/* <!-- Modal2 Structure --> */}
                 <div id="modal2" class="modal">
                     <div class="modal-content">
-                        <h4>Update Verification Document</h4>
+                        <h4>Update Drivers License</h4>
                         <form id="passWordForm">
                             <label for="nic-upload">Upload Scanned Copy of Driver's License</label>
                             <div id="nic-upload" class="file-field input-field">
