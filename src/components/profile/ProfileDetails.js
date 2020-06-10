@@ -108,7 +108,7 @@ class ProfileDetails extends Component {
             }
         })
 
-        axios.get("http://localhost:8080/doc/getDocument/"+localStorage.email,{
+        axios.get("http://localhost:8080/doc/getDocumentFile/"+localStorage.email,{
             headers:headersInfo
         })
         .then(function(res){
@@ -228,16 +228,18 @@ class ProfileDetails extends Component {
     updateDocument= (e) => {
         e.preventDefault();
         console.log(this.state);
-
+        const that=this;
+        console.log(that);
         const token = 'Bearer '+ localStorage.token;
         const headersInfo = {
             Authorization:token
         }
 
-        if(this.state.document===''){
+        if(that.state.document===''){
             const formData = new FormData();
             formData.append('file', this.state.selectedFile);
             formData.append('userId', localStorage.email);
+            formData.append('fileType', 'Drivers License');
             axios.post("http://localhost:8080/doc/upload", formData,{
                 headers:headersInfo
             })
@@ -245,12 +247,12 @@ class ProfileDetails extends Component {
                     console.log(res.data);
                     console.log("Document uploaded successfully.");
                 }).catch(function(error){
-                    console.log("Error : ",error);
+                    console.log("Error : ",error.response);
                     console.log("Document Upload Failed");
             })
         }
 
-        if(this.state.document!=='' && this.state.selectedFile!==''){
+        if(that.state.document!=='' && that.state.selectedFile!==''){
             const formData = new FormData();
             formData.append('file', this.state.selectedFile);
             formData.append('userId', localStorage.email);

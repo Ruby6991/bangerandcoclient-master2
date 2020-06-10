@@ -48,6 +48,7 @@ class SignInAndJoin extends Component {
             password:this.state.password
         }
         const that = this;
+        if(login.email!=='' && login.password!==''){
         axios.post("http://localhost:8080/authenticate",login)
         .then(function(res){
             const data = res.data;
@@ -71,6 +72,9 @@ class SignInAndJoin extends Component {
                 alert("Server Error!");
             }
         })
+        }else{
+            alert("Please Fill in all the fields")
+        } 
     }
 
     handleSubmitSignUp = (e) => {
